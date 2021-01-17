@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace DddDotNet.Infrastructure.Notification.Web.Fake
 {
@@ -9,7 +10,7 @@ namespace DddDotNet.Infrastructure.Notification.Web.Fake
             // do nothing
         }
 
-        public Task SendAsync(T message)
+        public Task SendAsync(T message, CancellationToken cancellationToken = default)
         {
             // do nothing
             return Task.CompletedTask;

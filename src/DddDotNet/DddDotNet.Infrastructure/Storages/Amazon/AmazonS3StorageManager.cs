@@ -3,6 +3,8 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace DddDotNet.Infrastructure.Storages.Amazon
 {
@@ -17,7 +19,12 @@ namespace DddDotNet.Infrastructure.Storages.Amazon
             _bucketName = bucketName;
         }
 
-        public void Create(FileEntryDTO fileEntry, Stream stream)
+        public void Create(IFileEntry fileEntry, Stream stream)
+        {
+            CreateAsync(fileEntry, stream).GetAwaiter().GetResult();
+        }
+
+        public async Task CreateAsync(IFileEntry fileEntry, Stream stream, CancellationToken cancellationToken = default)
         {
             var fileTransferUtility = new TransferUtility(_client);
 
@@ -29,17 +36,27 @@ namespace DddDotNet.Infrastructure.Storages.Amazon
                 CannedACL = S3CannedACL.NoACL,
             };
 
-            fileTransferUtility.UploadAsync(uploadRequest).Wait();
+            await fileTransferUtility.UploadAsync(uploadRequest, cancellationToken);
 
             fileEntry.FileLocation = fileEntry.Id.ToString();
         }
 
-        public void Delete(FileEntryDTO fileEntry)
+        public void Delete(IFileEntry fileEntry)
         {
-            _client.DeleteObjectAsync(_bucketName, fileEntry.FileLocation).Wait();
+            DeleteAsync(fileEntry).GetAwaiter().GetResult();
         }
 
-        public byte[] Read(FileEntryDTO fileEntry)
+        public async Task DeleteAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
+        {
+            await _client.DeleteObjectAsync(_bucketName, fileEntry.FileLocation, cancellationToken);
+        }
+
+        public byte[] Read(IFileEntry fileEntry)
+        {
+            return ReadAsync(fileEntry).GetAwaiter().GetResult();
+        }
+
+        public async Task<byte[]> ReadAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
         {
             var request = new GetObjectRequest
             {
@@ -47,7 +64,7 @@ namespace DddDotNet.Infrastructure.Storages.Amazon
                 Key = fileEntry.FileLocation,
             };
 
-            using (var response = _client.GetObjectAsync(request).GetAwaiter().GetResult())
+            using (var response = await _client.GetObjectAsync(request, cancellationToken))
             using (var responseStream = response.ResponseStream)
             using (var reader = new MemoryStream())
             {

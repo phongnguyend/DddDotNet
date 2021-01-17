@@ -1,10 +1,18 @@
-﻿namespace DddDotNet.Infrastructure.Notification.Sms.Fake
+﻿using System.Threading;
+using System.Threading.Tasks;
+
+namespace DddDotNet.Infrastructure.Notification.Sms.Fake
 {
     public class FakeSmsNotification : ISmsNotification
     {
-        public void Send(SmsMessageDTO smsMessage)
+        public void Send(ISmsMessage smsMessage)
         {
             // do nothing
+        }
+
+        public Task SendAsync(ISmsMessage smsMessage, CancellationToken cancellationToken = default)
+        {
+            return Task.CompletedTask;
         }
     }
 }

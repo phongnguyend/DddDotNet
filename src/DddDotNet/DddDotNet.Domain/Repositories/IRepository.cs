@@ -1,5 +1,7 @@
 ﻿using DddDotNet.Domain.Entities;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace DddDotNet.Domain.Repositories
 {
@@ -11,6 +13,8 @@ namespace DddDotNet.Domain.Repositories
         IQueryable<TEntity> GetAll();
 
         void AddOrUpdate(TEntity entity);
+
+        Task AddOrUpdateAsync(TEntity entity, CancellationToken cancellationToken = default);
 
         void Delete(TEntity entity);
     }
