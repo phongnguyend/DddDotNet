@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace DddDotNet.Application.Decorators.AuditLog
@@ -14,11 +15,11 @@ namespace DddDotNet.Application.Decorators.AuditLog
             _handler = handler;
         }
 
-        public void Handle(TCommand command)
+        public async Task HandleAsync(TCommand command)
         {
             var commandJson = JsonConvert.SerializeObject(command);
             Console.WriteLine($"Command of type {command.GetType().Name}: {commandJson}");
-            _handler.Handle(command);
+            await _handler.HandleAsync(command);
         }
     }
 }

@@ -22,11 +22,6 @@ namespace DddDotNet.Infrastructure.Storages.Azure
             _container = blobClient.GetContainerReference(_containerName);
         }
 
-        public void Create(IFileEntry fileEntry, Stream stream)
-        {
-            CreateAsync(fileEntry, stream).GetAwaiter().GetResult();
-        }
-
         public async Task CreateAsync(IFileEntry fileEntry, Stream stream, CancellationToken cancellationToken = default)
         {
             await _container.CreateIfNotExistsAsync(cancellationToken);
@@ -38,30 +33,18 @@ namespace DddDotNet.Infrastructure.Storages.Azure
             fileEntry.FileLocation = name;
         }
 
-        public void Delete(IFileEntry fileEntry)
-        {
-            DeleteAsync(fileEntry).GetAwaiter().GetResult();
-        }
-
         public async Task DeleteAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
         {
             CloudBlockBlob blob = _container.GetBlockBlobReference(fileEntry.FileLocation);
             await blob.DeleteAsync(cancellationToken);
         }
 
-        public byte[] Read(IFileEntry fileEntry)
-        {
-            return ReadAsync(fileEntry).GetAwaiter().GetResult();
-        }
-
         public async Task<byte[]> ReadAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
         {
             CloudBlockBlob blob = _container.GetBlockBlobReference(fileEntry.FileLocation);
-            using (var stream = new MemoryStream())
-            {
-                await blob.DownloadToStreamAsync(stream, cancellationToken);
-                return stream.ToArray();
-            }
+            using var stream = new MemoryStream();
+            await blob.DownloadToStreamAsync(stream, cancellationToken);
+            return stream.ToArray();
         }
     }
 }

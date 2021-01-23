@@ -1,4 +1,6 @@
-﻿namespace DddDotNet.Application.Decorators.DatabaseRetry
+﻿using System.Threading.Tasks;
+
+namespace DddDotNet.Application.Decorators.DatabaseRetry
 {
     [Mapping(Type = typeof(DatabaseRetryAttribute))]
     public class DatabaseRetryCommandDecorator<TCommand> : DatabaseRetryDecoratorBase, ICommandHandler<TCommand>
@@ -12,9 +14,9 @@
             _handler = handler;
         }
 
-        public void Handle(TCommand command)
+        public async Task HandleAsync(TCommand command)
         {
-            WrapExecution(() => _handler.Handle(command));
+            await WrapExecutionAsync(() => _handler.HandleAsync(command));
         }
     }
 }

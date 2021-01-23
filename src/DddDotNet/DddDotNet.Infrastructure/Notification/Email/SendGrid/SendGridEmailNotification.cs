@@ -15,11 +15,6 @@ namespace DddDotNet.Infrastructure.Notification.Email.SendGrid
             _options = options;
         }
 
-        public void Send(IEmailMessage emailMessage)
-        {
-            SendAsync(emailMessage).GetAwaiter().GetResult();
-        }
-
         public async Task SendAsync(IEmailMessage emailMessage, CancellationToken cancellationToken = default)
         {
             var client = new SendGridClient(_options.ApiKey);

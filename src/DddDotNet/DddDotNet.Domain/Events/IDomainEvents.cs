@@ -1,7 +1,9 @@
-﻿namespace DddDotNet.Domain.Events
+﻿using System.Threading.Tasks;
+
+namespace DddDotNet.Domain.Events
 {
     public interface IDomainEvents
     {
-        void Dispatch(IDomainEvent domainEvent);
+        Task DispatchAsync(IDomainEvent domainEvent);
     }
 }

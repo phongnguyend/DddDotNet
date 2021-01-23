@@ -1,8 +1,10 @@
-﻿namespace DddDotNet.Application
+﻿using System.Threading.Tasks;
+
+namespace DddDotNet.Application
 {
     public interface ICommandHandler<TCommand>
         where TCommand : ICommand
     {
-        void Handle(TCommand command);
+        Task HandleAsync(TCommand command);
     }
 }

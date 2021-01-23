@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace DddDotNet.Application.Decorators.DatabaseRetry
 {
@@ -16,6 +17,28 @@ namespace DddDotNet.Application.Decorators.DatabaseRetry
                 {
                     executedTimes++;
                     action();
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    if (executedTimes >= DatabaseRetryOptions.RetryTimes || !IsDatabaseException(ex))
+                    {
+                        throw;
+                    }
+                }
+            }
+        }
+
+        protected async Task WrapExecutionAsync(Func<Task> action)
+        {
+            int executedTimes = 0;
+
+            while (true)
+            {
+                try
+                {
+                    executedTimes++;
+                    await action();
                     return;
                 }
                 catch (Exception ex)

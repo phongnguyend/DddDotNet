@@ -18,11 +18,6 @@ namespace DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus
             _queueName = queueName;
         }
 
-        public void Send(T message, MetaData metaData = null)
-        {
-            SendAsync(message, metaData).Wait();
-        }
-
         public async Task SendAsync(T message, MetaData metaData, CancellationToken cancellationToken = default)
         {
             var queueClient = new QueueClient(_connectionString, _queueName);
