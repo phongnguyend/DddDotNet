@@ -3,6 +3,7 @@ using DddDotNet.Domain.Entities;
 using DddDotNet.Domain.Repositories;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DddDotNet.Application
@@ -24,7 +25,7 @@ namespace DddDotNet.Application
             _repository = repository;
         }
 
-        public async Task<TEntity> HandleAsync(GetEntityByIdQuery<TEntity> query)
+        public async Task<TEntity> HandleAsync(GetEntityByIdQuery<TEntity> query, CancellationToken cancellationToken = default)
         {
             var entity = await _repository.FirstOrDefaultAsync(_repository.GetAll().Where(x => x.Id == query.Id));
 

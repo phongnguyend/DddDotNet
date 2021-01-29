@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace DddDotNet.Application.Decorators.DatabaseRetry
 {
@@ -14,9 +15,9 @@ namespace DddDotNet.Application.Decorators.DatabaseRetry
             _handler = handler;
         }
 
-        public async Task HandleAsync(TCommand command)
+        public async Task HandleAsync(TCommand command, CancellationToken cancellationToken = default)
         {
-            await WrapExecutionAsync(() => _handler.HandleAsync(command));
+            await WrapExecutionAsync(() => _handler.HandleAsync(command, cancellationToken));
         }
     }
 }

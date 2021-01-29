@@ -1,5 +1,6 @@
 ﻿using DddDotNet.Domain.Entities;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DddDotNet.Application
@@ -25,7 +26,7 @@ namespace DddDotNet.Application
             _crudService = crudService;
         }
 
-        public async Task HandleAsync(AddOrUpdateEntityCommand<TEntity> command)
+        public async Task HandleAsync(AddOrUpdateEntityCommand<TEntity> command, CancellationToken cancellationToken = default)
         {
             await _crudService.AddOrUpdateAsync(command.Entity);
         }

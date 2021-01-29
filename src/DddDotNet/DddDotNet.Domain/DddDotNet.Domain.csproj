@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <CodeAnalysisRuleSet>DddDotNet.ruleset</CodeAnalysisRuleSet>
-    <Version>1.0.0-beta1</Version>
+    <Version>1.0.0-beta2</Version>
     <PackageProjectUrl>https://github.com/phongnguyend/DddDotNet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/phongnguyend/DddDotNet</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
