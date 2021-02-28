@@ -1,4 +1,6 @@
-﻿namespace DddDotNet.Infrastructure.Configuration
+﻿using CryptographyHelper.Certificates;
+
+namespace DddDotNet.Infrastructure.Configuration
 {
     public class ConfigurationProviders
     {
@@ -16,6 +18,8 @@
         public string ConnectionString { get; set; }
 
         public string SqlQuery { get; set; }
+
+        public CertificateOption Certificate { get; set; }
     }
 
     public class AzureKeyVaultOptions
