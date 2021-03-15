@@ -1,0 +1,62 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+resources:
+- repo: self
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: DotNetBuild
+  displayName: .Net Build
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: UseDotNet@2
+        displayName: Use .Net 5.0.200
+        inputs:
+          packageType: 'sdk'
+          version: '5.0.200'
+      - task: DotNetCoreCLI@2
+        displayName: dotnet restore
+        inputs:
+          command: 'restore'
+          projects: 'src/DddDotNet/DddDotNet.sln'
+          feedsToUse: 'select'
+      - task: DotNetCoreCLI@2
+        displayName: dotnet list package --vulnerable
+        inputs:
+          command: 'custom'
+          custom: 'list'
+          arguments: 'package --vulnerable'
+          workingDirectory: 'src/DddDotNet'
+      - task: DotNetCoreCLI@2
+        displayName: dotnet build
+        inputs:
+          command: 'build'
+          arguments: '--configuration Release'
+          workingDirectory: 'src/DddDotNet'
+      - task: DotNetCoreCLI@2
+        displayName: dotnet pack
+        inputs:
+          command: 'pack'
+          packagesToPack: '**/*.csproj'
+          configuration: 'Release'
+          includesource: true
+          versioningScheme: 'off'
+      - task: DotNetCoreCLI@2
+        displayName: dotnet nuget push
+        inputs:
+          command: 'push'
+          packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+          nuGetFeedType: 'internal'
+          publishVstsFeed: '265b1254-5187-4feb-89ae-5e6ed97d7e5f/ec457b80-be2b-4b79-9259-bdae7dd848d5'
