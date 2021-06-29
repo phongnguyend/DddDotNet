@@ -42,6 +42,7 @@
     <PackageReference Include="Confluent.Kafka" Version="1.5.2" />
     <PackageReference Include="CryptographyHelper" Version="1.0.0-beta4" />
     <PackageReference Include="Dapper.StrongName" Version="2.0.35" />
+    <PackageReference Include="DinkToPdf" Version="1.0.8" />
     <PackageReference Include="Google.Protobuf" Version="3.10.0" />
     <PackageReference Include="Grpc.Net.Client" Version="2.25.0" />
     <PackageReference Include="IdentityModel" Version="4.4.0" />
@@ -72,6 +73,7 @@
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.0.0-rc1.1" />
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc1.1" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc1.1" />
+    <PackageReference Include="PuppeteerSharp" Version="4.0.0" />
     <PackageReference Include="RabbitMQ.Client" Version="6.2.1" />
     <PackageReference Include="SendGrid" Version="9.21.2" />
     <PackageReference Include="Serilog" Version="2.10.0" />
