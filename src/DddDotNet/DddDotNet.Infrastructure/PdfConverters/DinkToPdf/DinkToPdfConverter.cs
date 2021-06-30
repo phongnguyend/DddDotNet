@@ -15,7 +15,7 @@ namespace DddDotNet.Infrastructure.PdfConverters.DinkToPdf
             _converter = converter;
         }
 
-        public Stream Convert(string html)
+        public Stream Convert(string html, PdfOptions pdfOptions = null)
         {
             var doc = new HtmlToPdfDocument()
             {
@@ -42,9 +42,9 @@ namespace DddDotNet.Infrastructure.PdfConverters.DinkToPdf
             return new MemoryStream(pdf);
         }
 
-        public Task<Stream> ConvertAsync(string html)
+        public Task<Stream> ConvertAsync(string html, PdfOptions pdfOptions = null)
         {
-            return Task.FromResult(Convert(html));
+            return Task.FromResult(Convert(html, pdfOptions));
         }
     }
 }
