@@ -17,7 +17,10 @@ namespace DddDotNet.Infrastructure.PdfConverters.PuppeteerSharp
             await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions { Headless = true });
             await using var page = await browser.NewPageAsync();
             await page.SetContentAsync(html);
-            return new MemoryStream(await page.PdfDataAsync());
+            return new MemoryStream(await page.PdfDataAsync(new global::PuppeteerSharp.PdfOptions
+            {
+                PrintBackground = true,
+            }));
         }
     }
 }

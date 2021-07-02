@@ -22,8 +22,9 @@ namespace DddDotNet.Infrastructure.PdfConverters.DinkToPdf
                 GlobalSettings =
                 {
                     ColorMode = ColorMode.Color,
-                    Orientation = Orientation.Landscape,
-                    PaperSize = PaperKind.A4Plus,
+                    Orientation = Orientation.Portrait,
+                    PaperSize = PaperKind.A4,
+                    Margins = new MarginSettings() { Top = 10, Bottom = 15, Left = 10, Right = 10 },
                 },
                 Objects =
                 {
@@ -31,7 +32,7 @@ namespace DddDotNet.Infrastructure.PdfConverters.DinkToPdf
                     {
                         PagesCount = true,
                         HtmlContent = html,
-                        WebSettings = { DefaultEncoding = "utf-8" },
+                        WebSettings = { DefaultEncoding = "utf-8", Background = true },
                         HeaderSettings = { FontSize = 9, Right = "Page [page] of [toPage]", Line = true, Spacing = 2.812 },
                     },
                 },
