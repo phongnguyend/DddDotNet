@@ -12,6 +12,10 @@ namespace DddDotNet.Infrastructure.Storages
         Task<byte[]> ReadAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default);
 
         Task DeleteAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default);
+
+        Task ArchiveAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default);
+
+        Task UnArchiveAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default);
     }
 
     public interface IFileEntry
