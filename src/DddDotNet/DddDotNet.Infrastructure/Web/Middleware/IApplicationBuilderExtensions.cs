@@ -22,5 +22,10 @@ namespace Microsoft.AspNetCore.Builder
             app.UseMiddleware<DebuggingMiddleware>();
             return app;
         }
+
+        public static IApplicationBuilder UseSwaggerAuthorized(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<SwaggerBasicAuthMiddleware>();
+        }
     }
 }
