@@ -9,12 +9,12 @@ namespace DddDotNet.Infrastructure.Web.Middleware
 {
     public class SwaggerBasicAuthMiddleware
     {
-        private readonly RequestDelegate next;
+        private readonly RequestDelegate _next;
         private readonly IMemoryCache _cache;
 
         public SwaggerBasicAuthMiddleware(RequestDelegate next, IMemoryCache cache)
         {
-            this.next = next;
+            _next = next;
             _cache = cache;
         }
 
@@ -38,7 +38,7 @@ namespace DddDotNet.Infrastructure.Web.Middleware
                     // Check if login is correct
                     if (IsAuthorized(username, password))
                     {
-                        await next.Invoke(context);
+                        await _next.Invoke(context);
                         return;
                     }
                 }
@@ -51,7 +51,7 @@ namespace DddDotNet.Infrastructure.Web.Middleware
             }
             else
             {
-                await next.Invoke(context);
+                await _next.Invoke(context);
             }
         }
 
