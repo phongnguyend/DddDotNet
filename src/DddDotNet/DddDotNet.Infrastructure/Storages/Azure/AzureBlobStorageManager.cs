@@ -57,5 +57,9 @@ namespace DddDotNet.Infrastructure.Storages.Azure
             CloudBlockBlob blob = _container.GetBlockBlobReference(GetBlobName(fileEntry));
             await blob.SetStandardBlobTierAsync(StandardBlobTier.Hot, cancellationToken);
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

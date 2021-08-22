@@ -32,5 +32,9 @@ namespace DddDotNet.Infrastructure.Storages.Fake
         {
             return Task.CompletedTask;
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

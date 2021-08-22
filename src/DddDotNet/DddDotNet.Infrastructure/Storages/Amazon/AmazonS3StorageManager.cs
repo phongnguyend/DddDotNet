@@ -86,5 +86,9 @@ namespace DddDotNet.Infrastructure.Storages.Amazon
 
             await _client.CopyObjectAsync(copy, cancellationToken);
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

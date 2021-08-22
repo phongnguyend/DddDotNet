@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace DddDotNet.Infrastructure.Storages
 {
-    public interface IFileStorageManager
+    public interface IFileStorageManager : IDisposable
     {
         Task CreateAsync(IFileEntry fileEntry, Stream stream, CancellationToken cancellationToken = default);
 

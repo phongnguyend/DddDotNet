@@ -58,5 +58,9 @@ namespace DddDotNet.Infrastructure.Storages.Local
             // TODO: move to active storage
             return Task.CompletedTask;
         }
+
+        public void Dispose()
+        {
+        }
     }
 }
