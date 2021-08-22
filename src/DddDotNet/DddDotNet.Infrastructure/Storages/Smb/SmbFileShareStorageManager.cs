@@ -18,7 +18,6 @@ namespace DddDotNet.Infrastructure.Storages.Smb
         public SmbFileShareStorageManager(SmbFileShareOptions options)
         {
             _options = options;
-            _smbClient = new SMB2Client();
         }
 
         private void Init()
@@ -58,21 +57,7 @@ namespace DddDotNet.Infrastructure.Storages.Smb
             object fileHandle;
             FileStatus fileStatus;
 
-            string[] arrayPath = (_options.Path + fileEntry.FileLocation).Split('/');
-
-            var directory = string.Empty;
-            for (int i = 0; i < arrayPath.Length - 1; i++)
-            {
-                directory += arrayPath[i];
-                status = _fileStore.CreateFile(out fileHandle, out fileStatus, directory, AccessMask.GENERIC_READ, SMBLibrary.FileAttributes.Directory, ShareAccess.Read | ShareAccess.Write, CreateDisposition.FILE_CREATE, CreateOptions.FILE_DIRECTORY_FILE, null);
-
-                if (status != NTStatus.STATUS_SUCCESS && status != NTStatus.STATUS_OBJECT_NAME_COLLISION)
-                {
-                    throw new Exception($"Failed to create directory. Status: {status}");
-                }
-
-                directory += "/";
-            }
+            CreateDirectory(fileEntry);
 
             status = _fileStore.CreateFile(out fileHandle, out fileStatus, _options.Path + fileEntry.FileLocation, AccessMask.GENERIC_WRITE | AccessMask.SYNCHRONIZE, SMBLibrary.FileAttributes.Normal, ShareAccess.None, CreateDisposition.FILE_OVERWRITE_IF, CreateOptions.FILE_NON_DIRECTORY_FILE | CreateOptions.FILE_SYNCHRONOUS_IO_ALERT, null);
 
@@ -110,6 +95,42 @@ namespace DddDotNet.Infrastructure.Storages.Smb
             }
 
             return Task.CompletedTask;
+        }
+
+        private void CreateDirectory(IFileEntry fileEntry)
+        {
+            NTStatus status;
+            object fileHandle;
+            FileStatus fileStatus;
+
+            var directory = Path.GetDirectoryName(_options.Path + fileEntry.FileLocation).Replace("\\", "/");
+
+            if (string.IsNullOrEmpty(directory))
+            {
+                return;
+            }
+
+            status = _fileStore.CreateFile(out fileHandle, out fileStatus, directory, AccessMask.GENERIC_READ, SMBLibrary.FileAttributes.Directory, ShareAccess.Read | ShareAccess.Write, CreateDisposition.FILE_CREATE, CreateOptions.FILE_DIRECTORY_FILE, null);
+            if (status == NTStatus.STATUS_OBJECT_NAME_COLLISION)
+            {
+                return;
+            }
+
+            string[] arrayPath = directory.Split('/');
+
+            directory = string.Empty;
+            for (int i = 0; i < arrayPath.Length; i++)
+            {
+                directory += arrayPath[i];
+                status = _fileStore.CreateFile(out fileHandle, out fileStatus, directory, AccessMask.GENERIC_READ, SMBLibrary.FileAttributes.Directory, ShareAccess.Read | ShareAccess.Write, CreateDisposition.FILE_CREATE, CreateOptions.FILE_DIRECTORY_FILE, null);
+
+                if (status != NTStatus.STATUS_SUCCESS && status != NTStatus.STATUS_OBJECT_NAME_COLLISION)
+                {
+                    throw new Exception($"Failed to create directory. Status: {status}");
+                }
+
+                directory += "/";
+            }
         }
 
         public Task DeleteAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
