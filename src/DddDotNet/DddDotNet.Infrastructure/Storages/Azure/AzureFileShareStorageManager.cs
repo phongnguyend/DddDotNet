@@ -26,12 +26,12 @@ namespace DddDotNet.Infrastructure.Storages.Azure
 
         public async Task CreateAsync(IFileEntry fileEntry, Stream stream, CancellationToken cancellationToken = default)
         {
-            ShareFileClient file = GetShareFileClient(fileEntry, true, cancellationToken);
+            ShareFileClient file = await GetShareFileClientAsync(fileEntry, true, cancellationToken);
             await file.CreateAsync(stream.Length, cancellationToken: cancellationToken);
             await file.UploadRangeAsync(new HttpRange(0, stream.Length), stream, cancellationToken: cancellationToken);
         }
 
-        private ShareFileClient GetShareFileClient(IFileEntry fileEntry, bool createDirectories, CancellationToken cancellationToken)
+        private async Task<ShareFileClient> GetShareFileClientAsync(IFileEntry fileEntry, bool createDirectories, CancellationToken cancellationToken)
         {
             var fileName = Path.GetFileName(fileEntry.FileLocation);
             string[] arrayPath = (_options.Path + fileEntry.FileLocation).Split('/');
@@ -40,9 +40,20 @@ namespace DddDotNet.Infrastructure.Storages.Azure
             for (int i = 0; i < arrayPath.Length - 1; i++)
             {
                 directory = directory.GetSubdirectoryClient(arrayPath[i]);
-                if (createDirectories)
+            }
+
+            if (createDirectories)
+            {
+                var exists = await directory.ExistsAsync(cancellationToken: cancellationToken);
+                if (!exists.Value)
                 {
-                    directory.CreateIfNotExists(cancellationToken: cancellationToken);
+                    directory = _shareClient.GetRootDirectoryClient();
+
+                    for (int i = 0; i < arrayPath.Length - 1; i++)
+                    {
+                        directory = directory.GetSubdirectoryClient(arrayPath[i]);
+                        await directory.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
+                    }
                 }
             }
 
@@ -52,13 +63,13 @@ namespace DddDotNet.Infrastructure.Storages.Azure
 
         public async Task DeleteAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
         {
-            ShareFileClient file = GetShareFileClient(fileEntry, false, cancellationToken);
+            ShareFileClient file = await GetShareFileClientAsync(fileEntry, false, cancellationToken);
             await file.DeleteIfExistsAsync(cancellationToken: cancellationToken);
         }
 
         public async Task<byte[]> ReadAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
         {
-            ShareFileClient file = GetShareFileClient(fileEntry, false, cancellationToken);
+            ShareFileClient file = await GetShareFileClientAsync(fileEntry, false, cancellationToken);
             var download = await file.DownloadAsync(cancellationToken: cancellationToken);
             using var stream = new MemoryStream();
             await download.Value.Content.CopyToAsync(stream, cancellationToken);
