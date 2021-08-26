@@ -24,10 +24,10 @@ namespace DddDotNet.IntegrationTests.Infrastructure.MessageBrokers
         [Fact]
         public async Task SendAsync_Success()
         {
-            var message = new { Id = Guid.NewGuid() };
+            var message = new Message { Id = Guid.NewGuid() };
             var metaData = new MetaData { };
-            var azureQueueSender = new AzureQueueSender<object>(_connectionString, "integration-test");
-            await azureQueueSender.SendAsync(message, metaData);
+            var sender = new AzureQueueSender<Message>(_connectionString, "integration-test");
+            await sender.SendAsync(message, metaData);
         }
     }
 }
