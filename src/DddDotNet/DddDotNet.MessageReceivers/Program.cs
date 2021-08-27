@@ -1,9 +1,9 @@
-﻿using DddDotNet.Infrastructure.MessageBrokers.AzureEventHub;
+﻿using Azure.Messaging.EventGrid;
+using Azure.Storage.Queues;
+using DddDotNet.Infrastructure.MessageBrokers.AzureEventHub;
 using DddDotNet.Infrastructure.MessageBrokers.AzureQueue;
 using DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus;
-using Microsoft.Azure.EventGrid.Models;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using System;
 using System.Text;
 
@@ -21,6 +21,8 @@ namespace DddDotNet.MessageReceivers
 
         public DateTime DateTime2 { get; set; }
 
+        public DateTime CreatedDateTime { get; set; }
+
         public override string ToString()
         {
             var stringBuilder = new StringBuilder();
@@ -30,6 +32,7 @@ namespace DddDotNet.MessageReceivers
             stringBuilder.AppendLine($"Text2: {Text2}");
             stringBuilder.AppendLine($"DateTime1: {DateTime1}");
             stringBuilder.AppendLine($"DateTime2: {DateTime2}");
+            stringBuilder.AppendLine($"CreatedDateTime: {CreatedDateTime}");
             return stringBuilder.ToString();
         }
     }
@@ -80,12 +83,20 @@ namespace DddDotNet.MessageReceivers
 
             var azureQueueEventGrid = new AzureQueueReceiver<EventGridEvent>(
                 config["MessageBroker:AzureQueue:ConnectionString"],
-                "event-grid-integration-test");
+                "event-grid-integration-test",
+                QueueMessageEncoding.Base64);
             azureQueueEventGrid.ReceiveString((message) =>
             {
-                var eventGridEvent = JsonConvert.DeserializeObject<EventGridEvent>(message);
-                Console.WriteLine($"AzureQueueEventGridSubscription: {message}");
-                Console.WriteLine($"AzureQueueEventGridSubscription: {eventGridEvent.Data}");
+                try
+                {
+                    EventGridEvent eventGridEvent = EventGridEvent.Parse(new BinaryData(message));
+                    Console.WriteLine($"AzureQueueEventGridSubscription: {message}");
+                    Console.WriteLine($"AzureQueueEventGridSubscription: {eventGridEvent.Data}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
             });
 
             Console.ReadLine();

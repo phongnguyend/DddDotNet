@@ -1,6 +1,5 @@
-﻿using DddDotNet.Domain.Infrastructure.MessageBrokers;
-using Microsoft.Azure.Storage;
-using Microsoft.Azure.Storage.Queue;
+﻿using Azure.Storage.Queues;
+using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
@@ -11,11 +10,13 @@ namespace DddDotNet.Infrastructure.MessageBrokers.AzureQueue
     {
         private readonly string _connectionString;
         private readonly string _queueName;
+        private readonly QueueMessageEncoding _messageEncoding;
 
-        public AzureQueueReceiver(string connectionString, string queueName)
+        public AzureQueueReceiver(string connectionString, string queueName, QueueMessageEncoding messageEncoding = QueueMessageEncoding.None)
         {
             _connectionString = connectionString;
             _queueName = queueName;
+            _messageEncoding = messageEncoding;
         }
 
         public void Receive(Action<T, MetaData> action)
@@ -39,23 +40,35 @@ namespace DddDotNet.Infrastructure.MessageBrokers.AzureQueue
 
         private async Task ReceiveStringAsync(Action<string> action)
         {
-            var storageAccount = CloudStorageAccount.Parse(_connectionString);
-            var queueClient = storageAccount.CreateCloudQueueClient();
-            var queue = queueClient.GetQueueReference(_queueName);
+            var queueClient = new QueueClient(_connectionString, _queueName, new QueueClientOptions
+            {
+                MessageEncoding = _messageEncoding,
+            });
 
-            await queue.CreateIfNotExistsAsync();
+            await queueClient.CreateIfNotExistsAsync();
 
             while (true)
             {
-                var retrievedMessage = await queue.GetMessageAsync();
+                try
+                {
+                    var retrievedMessages = (await queueClient.ReceiveMessagesAsync()).Value;
 
-                if (retrievedMessage != null)
-                {
-                    action(retrievedMessage.AsString);
-                    await queue.DeleteMessageAsync(retrievedMessage);
+                    if (retrievedMessages.Length > 0)
+                    {
+                        foreach (var retrievedMessage in retrievedMessages)
+                        {
+                            action(retrievedMessage.Body.ToString());
+                            await queueClient.DeleteMessageAsync(retrievedMessage.MessageId, retrievedMessage.PopReceipt);
+                        }
+                    }
+                    else
+                    {
+                        await Task.Delay(1000);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
+                    Console.WriteLine(ex);
                     await Task.Delay(1000);
                 }
             }

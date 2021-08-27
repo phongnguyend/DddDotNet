@@ -13,6 +13,7 @@ namespace DddDotNet.IntegrationTests.Infrastructure.MessageBrokers
                 Text2 = "This is Text2",
                 DateTime1 = DateTime.MinValue,
                 DateTime2 = new DateTime(2021, 08, 24),
+                CreatedDateTime = DateTime.Now
             };
         }
 
@@ -25,5 +26,7 @@ namespace DddDotNet.IntegrationTests.Infrastructure.MessageBrokers
         public DateTime DateTime1 { get; set; }
 
         public DateTime DateTime2 { get; set; }
+
+        public DateTime CreatedDateTime { get; set; }
     }
 }
