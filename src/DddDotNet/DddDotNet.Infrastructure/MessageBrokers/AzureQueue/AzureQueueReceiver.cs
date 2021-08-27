@@ -23,29 +23,13 @@ namespace DddDotNet.Infrastructure.MessageBrokers.AzureQueue
             Task.Factory.StartNew(() => ReceiveAsync(action));
         }
 
-        private async Task ReceiveAsync(Action<T, MetaData> action)
+        private Task ReceiveAsync(Action<T, MetaData> action)
         {
-            var storageAccount = CloudStorageAccount.Parse(_connectionString);
-            var queueClient = storageAccount.CreateCloudQueueClient();
-            var queue = queueClient.GetQueueReference(_queueName);
-
-            await queue.CreateIfNotExistsAsync();
-
-            while (true)
+            return ReceiveStringAsync(retrievedMessage =>
             {
-                var retrievedMessage = await queue.GetMessageAsync();
-
-                if (retrievedMessage != null)
-                {
-                    var message = JsonConvert.DeserializeObject<Message<T>>(retrievedMessage.AsString);
-                    action(message.Data, message.MetaData);
-                    await queue.DeleteMessageAsync(retrievedMessage);
-                }
-                else
-                {
-                    await Task.Delay(1000);
-                }
-            }
+                var message = JsonConvert.DeserializeObject<Message<T>>(retrievedMessage);
+                action(message.Data, message.MetaData);
+            });
         }
 
         public void ReceiveString(Action<string> action)

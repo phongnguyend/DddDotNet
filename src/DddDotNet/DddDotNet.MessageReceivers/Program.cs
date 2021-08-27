@@ -3,13 +3,35 @@ using DddDotNet.Infrastructure.MessageBrokers.AzureQueue;
 using DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus;
 using Microsoft.Azure.EventGrid.Models;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
+using System.Text;
 
 namespace DddDotNet.MessageReceivers
 {
     class Message
     {
         public string Id { get; set; }
+
+        public string Text1 { get; set; }
+
+        public string Text2 { get; set; }
+
+        public DateTime DateTime1 { get; set; }
+
+        public DateTime DateTime2 { get; set; }
+
+        public override string ToString()
+        {
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine($"Id: {Id}");
+            stringBuilder.AppendLine($"Text1: {Text1}");
+            stringBuilder.AppendLine($"Text2: {Text2}");
+            stringBuilder.AppendLine($"DateTime1: {DateTime1}");
+            stringBuilder.AppendLine($"DateTime2: {DateTime2}");
+            return stringBuilder.ToString();
+        }
     }
 
     class Program
@@ -26,7 +48,7 @@ namespace DddDotNet.MessageReceivers
                 "integration-test");
             azureQueue.Receive((message, metaData) =>
             {
-                Console.WriteLine($"AzureQueue: {message.Id}");
+                Console.WriteLine($"AzureQueue: {message}");
             });
 
             var azureServiceBus = new AzureServiceBusReceiver<Message>(
@@ -34,7 +56,7 @@ namespace DddDotNet.MessageReceivers
                 "integration-test");
             azureServiceBus.Receive((message, metaData) =>
             {
-                Console.WriteLine($"AzureServiceBus: {message.Id}");
+                Console.WriteLine($"AzureServiceBus: {message}");
             });
 
             var azureServiceBusSubscription = new AzureServiceBusSubscriptionReceiver<Message>(
@@ -43,7 +65,7 @@ namespace DddDotNet.MessageReceivers
                 "sub-integration-test");
             azureServiceBusSubscription.Receive((message, metaData) =>
             {
-                Console.WriteLine($"AzureServiceBusSubscription: {message.Id}");
+                Console.WriteLine($"AzureServiceBusSubscription: {message}");
             });
 
             var azureEventHub = new AzureEventHubReceiver<Message>(
@@ -53,7 +75,7 @@ namespace DddDotNet.MessageReceivers
                 "eventhub-integration-test");
             azureEventHub.Receive((message, metaData) =>
             {
-                Console.WriteLine($"AzureEventHub: {message.Id}");
+                Console.WriteLine($"AzureEventHub: {message}");
             });
 
             var azureQueueEventGrid = new AzureQueueReceiver<EventGridEvent>(
@@ -61,7 +83,9 @@ namespace DddDotNet.MessageReceivers
                 "event-grid-integration-test");
             azureQueueEventGrid.ReceiveString((message) =>
             {
+                var eventGridEvent = JsonConvert.DeserializeObject<EventGridEvent>(message);
                 Console.WriteLine($"AzureQueueEventGridSubscription: {message}");
+                Console.WriteLine($"AzureQueueEventGridSubscription: {eventGridEvent.Data}");
             });
 
             Console.ReadLine();

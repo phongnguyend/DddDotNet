@@ -1,7 +1,6 @@
 ﻿using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using DddDotNet.Infrastructure.MessageBrokers.AzureEventGrid;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -26,10 +25,13 @@ namespace DddDotNet.IntegrationTests.Infrastructure.MessageBrokers
         [Fact]
         public async Task SendAsync_Success()
         {
-            var message = new Message { Id = Guid.NewGuid() };
-            var metaData = new MetaData { };
-            var sender = new AzureEventGridSender<Message>(_domainEndpoint, _domainKey, "integration-test");
-            await sender.SendAsync(message, metaData);
+            for (int i = 0; i < 10; i++)
+            {
+                var message = Message.GetTestMessage();
+                var metaData = new MetaData { };
+                var sender = new AzureEventGridSender<Message>(_domainEndpoint, _domainKey, "integration-test");
+                await sender.SendAsync(message, metaData);
+            }
         }
     }
 }
