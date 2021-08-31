@@ -16,9 +16,10 @@ namespace DddDotNet.Infrastructure.Notification.Email.SmtpClient
 
         public async Task SendAsync(IEmailMessage emailMessage, CancellationToken cancellationToken = default)
         {
-            var mail = new MailMessage();
-
-            mail.From = new MailAddress(emailMessage.From);
+            var mail = new MailMessage
+            {
+                From = new MailAddress(emailMessage.From, emailMessage.FromName),
+            };
 
             emailMessage.Tos?.Split(';')
                 .Where(x => !string.IsNullOrWhiteSpace(x))
@@ -51,7 +52,6 @@ namespace DddDotNet.Infrastructure.Notification.Email.SmtpClient
             if (!string.IsNullOrWhiteSpace(_options.UserName) && !string.IsNullOrWhiteSpace(_options.Password))
             {
                 smtpClient.Credentials = new System.Net.NetworkCredential(_options.UserName, _options.Password);
-
             }
 
             if (_options.EnableSsl.HasValue)

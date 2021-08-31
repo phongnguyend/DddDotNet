@@ -1,14 +1,8 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using DddDotNet.Infrastructure.Notification.Email;
 
-namespace DddDotNet.Infrastructure.Notification.Email
+namespace DddDotNet.IntegrationTests.Notification.Email
 {
-    public interface IEmailNotification
-    {
-        Task SendAsync(IEmailMessage emailMessage, CancellationToken cancellationToken = default);
-    }
-
-    public interface IEmailMessage
+    public class EmailMessage : IEmailMessage
     {
         public string From { get; set; }
 
