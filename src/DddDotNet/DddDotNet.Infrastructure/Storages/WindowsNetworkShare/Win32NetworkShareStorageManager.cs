@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,6 +24,11 @@ namespace DddDotNet.Infrastructure.Storages.WindowsNetworkShare
 
         public void Connect()
         {
+            if (Regex.IsMatch(_option.ShareName, @"^[a-z]", RegexOptions.IgnoreCase))
+            {
+                return;
+            }
+
             var netResource = new Win32NetResource()
             {
                 Scope = Win32ResourceScope.GlobalNetwork,
@@ -41,11 +47,29 @@ namespace DddDotNet.Infrastructure.Storages.WindowsNetworkShare
 
         public void Disconnect()
         {
+            if (Regex.IsMatch(_option.ShareName, @"^[a-z]", RegexOptions.IgnoreCase))
+            {
+                return;
+            }
+
             var result = WNetCancelConnection2(_option.ShareName, 0, true);
             if (result != 0)
             {
                 throw new Win32Exception(result);
             }
+        }
+
+        public void ResetConnection()
+        {
+            try
+            {
+                Disconnect();
+            }
+            catch
+            {
+            }
+
+            Connect();
         }
 
         public async Task CreateAsync(IFileEntry fileEntry, Stream stream, CancellationToken cancellationToken = default)

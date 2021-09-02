@@ -27,7 +27,7 @@ namespace DddDotNet.IntegrationTests.Infrastructure.Storages
         {
             using Win32NetworkShareStorageManager networkShareStorageManager = new Win32NetworkShareStorageManager(_options);
 
-            networkShareStorageManager.Connect();
+            networkShareStorageManager.ResetConnection();
 
             var fileEntry = new FileEntry
             {
