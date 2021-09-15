@@ -35,7 +35,7 @@ namespace DddDotNet.Infrastructure.Web.Filters
             {
                 _logger.LogError(context.Exception, "[{0}-{1}]", DateTime.UtcNow.Ticks, Thread.CurrentThread.ManagedThreadId);
 
-                if (_options?.DetailLevel == GlobalExceptionDetailLevel.Throw)
+                if (_options.DetailLevel == GlobalExceptionDetailLevel.Throw)
                 {
                     return;
                 }
