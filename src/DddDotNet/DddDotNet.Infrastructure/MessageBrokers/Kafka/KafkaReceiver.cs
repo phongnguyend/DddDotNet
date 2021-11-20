@@ -1,9 +1,9 @@
 ﻿using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using Confluent.Kafka;
-using Newtonsoft.Json;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace DddDotNet.Infrastructure.MessageBrokers.Kafka
 {
@@ -61,7 +61,7 @@ namespace DddDotNet.Infrastructure.MessageBrokers.Kafka
                         continue;
                     }
 
-                    var message = JsonConvert.DeserializeObject<Message<T>>(consumeResult.Message.Value);
+                    var message = JsonSerializer.Deserialize<Message<T>>(consumeResult.Message.Value);
                     action(message.Data, message.MetaData);
                 }
                 catch (ConsumeException e)

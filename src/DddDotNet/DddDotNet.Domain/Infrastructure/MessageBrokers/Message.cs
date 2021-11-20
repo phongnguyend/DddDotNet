@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using System.Text;
+﻿using System.Text;
+using System.Text.Json;
 
 namespace DddDotNet.Domain.Infrastructure.MessageBrokers
 {
@@ -11,7 +11,7 @@ namespace DddDotNet.Domain.Infrastructure.MessageBrokers
 
         public string SerializeObject()
         {
-            return JsonConvert.SerializeObject(this);
+            return JsonSerializer.Serialize(this);
         }
 
         public byte[] GetBytes()

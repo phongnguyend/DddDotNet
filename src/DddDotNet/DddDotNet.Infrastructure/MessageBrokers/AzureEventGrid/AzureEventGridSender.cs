@@ -1,7 +1,6 @@
 ﻿using Azure;
 using Azure.Messaging.EventGrid;
 using DddDotNet.Domain.Infrastructure.MessageBrokers;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -27,11 +26,11 @@ namespace DddDotNet.Infrastructure.MessageBrokers.AzureEventGrid
 
             EventGridPublisherClient client = new EventGridPublisherClient(new Uri(_domainEndpoint), new AzureKeyCredential(_domainKey));
 
-            var data = new BinaryData(JsonConvert.SerializeObject(new Message<T>
+            var data = new BinaryData(new Message<T>
             {
                 Data = message,
                 MetaData = metaData,
-            }));
+            }.SerializeObject());
 
             var events = new List<EventGridEvent>()
             {

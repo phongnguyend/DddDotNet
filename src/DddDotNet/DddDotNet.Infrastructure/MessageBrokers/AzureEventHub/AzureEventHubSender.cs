@@ -1,8 +1,8 @@
 ﻿using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Producer;
 using DddDotNet.Domain.Infrastructure.MessageBrokers;
-using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,7 +25,7 @@ namespace DddDotNet.Infrastructure.MessageBrokers.AzureEventHub
 
             var events = new List<EventData>
             {
-                new EventData(JsonConvert.SerializeObject(new Message<T>
+                new EventData(JsonSerializer.Serialize(new Message<T>
                 {
                     Data = message,
                     MetaData = metaData,

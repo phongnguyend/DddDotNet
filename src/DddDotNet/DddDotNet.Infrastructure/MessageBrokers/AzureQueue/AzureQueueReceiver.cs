@@ -1,7 +1,7 @@
 ﻿using Azure.Storage.Queues;
 using DddDotNet.Domain.Infrastructure.MessageBrokers;
-using Newtonsoft.Json;
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace DddDotNet.Infrastructure.MessageBrokers.AzureQueue
@@ -28,7 +28,7 @@ namespace DddDotNet.Infrastructure.MessageBrokers.AzureQueue
         {
             return ReceiveStringAsync(retrievedMessage =>
             {
-                var message = JsonConvert.DeserializeObject<Message<T>>(retrievedMessage);
+                var message = JsonSerializer.Deserialize<Message<T>>(retrievedMessage);
                 action(message.Data, message.MetaData);
             });
         }

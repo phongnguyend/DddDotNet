@@ -1,6 +1,6 @@
 ﻿using Azure.Storage.Queues;
 using DddDotNet.Domain.Infrastructure.MessageBrokers;
-using Newtonsoft.Json;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,7 +22,7 @@ namespace DddDotNet.Infrastructure.MessageBrokers.AzureQueue
             var queueClient = new QueueClient(_connectionString, _queueName);
             await queueClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
 
-            var jsonMessage = JsonConvert.SerializeObject(new Message<T>
+            var jsonMessage = JsonSerializer.Serialize(new Message<T>
             {
                 Data = message,
                 MetaData = metaData,
