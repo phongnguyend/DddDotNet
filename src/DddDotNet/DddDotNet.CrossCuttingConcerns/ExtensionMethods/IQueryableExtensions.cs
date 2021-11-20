@@ -15,5 +15,15 @@ namespace DddDotNet.CrossCuttingConcerns.ExtensionMethods
         {
             return condition ? query.Where(predicate) : query;
         }
+
+        public static IQueryable<TSource> OrderByIf<TSource, TKey>(this IQueryable<TSource> query, bool condition, Expression<Func<TSource, TKey>> keySelector, bool ascending = true)
+        {
+            if (condition)
+            {
+                return ascending ? query.OrderBy(keySelector) : query.OrderByDescending(keySelector);
+            }
+
+            return query;
+        }
     }
 }
