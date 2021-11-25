@@ -169,7 +169,20 @@ namespace DddDotNet.Infrastructure.Storages.Smb
             return Task.CompletedTask;
         }
 
-        public Task<byte[]> ReadAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
+        public async Task<byte[]> ReadAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
+        {
+            using var stream = new MemoryStream();
+            await DownloadAsync(fileEntry, stream, cancellationToken);
+            return stream.ToArray();
+        }
+
+        public Task DownloadAsync(IFileEntry fileEntry, string path, CancellationToken cancellationToken = default)
+        {
+            using var stream = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.None);
+            return DownloadAsync(fileEntry, stream, cancellationToken);
+        }
+
+        public Task DownloadAsync(IFileEntry fileEntry, Stream stream, CancellationToken cancellationToken = default)
         {
             Init();
 
@@ -183,8 +196,6 @@ namespace DddDotNet.Infrastructure.Storages.Smb
             {
                 throw new Exception($"Failed to open file. Status: {status}");
             }
-
-            MemoryStream stream = new MemoryStream();
 
             byte[] data;
             long bytesRead = 0;
@@ -213,7 +224,7 @@ namespace DddDotNet.Infrastructure.Storages.Smb
                 throw new Exception($"Failed to close file. Status: {status}");
             }
 
-            return Task.FromResult(stream.ToArray());
+            return Task.CompletedTask;
         }
 
         public Task UnArchiveAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)

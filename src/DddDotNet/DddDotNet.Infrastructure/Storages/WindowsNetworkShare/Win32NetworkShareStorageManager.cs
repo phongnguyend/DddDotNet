@@ -109,6 +109,22 @@ namespace DddDotNet.Infrastructure.Storages.WindowsNetworkShare
             return File.ReadAllBytesAsync(GetFilePath(fileEntry), cancellationToken);
         }
 
+        public Task DownloadAsync(IFileEntry fileEntry, string path, CancellationToken cancellationToken = default)
+        {
+            File.Copy(GetFilePath(fileEntry), path, true);
+            return Task.CompletedTask;
+        }
+
+        public Task DownloadAsync(IFileEntry fileEntry, Stream stream, CancellationToken cancellationToken = default)
+        {
+            using (FileStream fileStream = File.OpenRead(GetFilePath(fileEntry)))
+            {
+                fileStream.CopyTo(stream);
+            }
+
+            return Task.CompletedTask;
+        }
+
         public Task ArchiveAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
         {
             // TODO: move to archive storage

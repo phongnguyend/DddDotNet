@@ -47,6 +47,22 @@ namespace DddDotNet.Infrastructure.Storages.Local
             return File.ReadAllBytesAsync(Path.Combine(_option.Path, fileEntry.FileLocation), cancellationToken);
         }
 
+        public Task DownloadAsync(IFileEntry fileEntry, string path, CancellationToken cancellationToken = default)
+        {
+            File.Copy(Path.Combine(_option.Path, fileEntry.FileLocation), path);
+            return Task.CompletedTask;
+        }
+
+        public Task DownloadAsync(IFileEntry fileEntry, Stream stream, CancellationToken cancellationToken = default)
+        {
+            using (FileStream fileStream = File.OpenRead(Path.Combine(_option.Path, fileEntry.FileLocation)))
+            {
+                fileStream.CopyTo(stream);
+            }
+
+            return Task.CompletedTask;
+        }
+
         public Task ArchiveAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
         {
             // TODO: move to archive storage

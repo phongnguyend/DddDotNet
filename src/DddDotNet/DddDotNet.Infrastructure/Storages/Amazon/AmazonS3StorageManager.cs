@@ -46,6 +46,26 @@ namespace DddDotNet.Infrastructure.Storages.Amazon
 
         public async Task<byte[]> ReadAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
         {
+            using var stream = new MemoryStream();
+            await DownloadAsync(fileEntry, stream, cancellationToken);
+            return stream.ToArray();
+        }
+
+        public async Task DownloadAsync(IFileEntry fileEntry, string path, CancellationToken cancellationToken = default)
+        {
+            var request = new TransferUtilityDownloadRequest
+            {
+                BucketName = _options.BucketName,
+                Key = GetKey(fileEntry),
+                FilePath = path,
+            };
+
+            var fileTransferUtility = new TransferUtility(_client);
+            await fileTransferUtility.DownloadAsync(request, cancellationToken);
+        }
+
+        public async Task DownloadAsync(IFileEntry fileEntry, Stream stream, CancellationToken cancellationToken = default)
+        {
             var request = new GetObjectRequest
             {
                 BucketName = _options.BucketName,
@@ -54,9 +74,7 @@ namespace DddDotNet.Infrastructure.Storages.Amazon
 
             using var response = await _client.GetObjectAsync(request, cancellationToken);
             using var responseStream = response.ResponseStream;
-            using var reader = new MemoryStream();
-            await responseStream.CopyToAsync(reader, cancellationToken);
-            return reader.ToArray();
+            await responseStream.CopyToAsync(stream, cancellationToken);
         }
 
         public async Task ArchiveAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)

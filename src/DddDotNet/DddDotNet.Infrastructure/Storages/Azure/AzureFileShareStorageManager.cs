@@ -69,11 +69,22 @@ namespace DddDotNet.Infrastructure.Storages.Azure
 
         public async Task<byte[]> ReadAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
         {
+            using var stream = new MemoryStream();
+            await DownloadAsync(fileEntry, stream, cancellationToken);
+            return stream.ToArray();
+        }
+
+        public async Task DownloadAsync(IFileEntry fileEntry, string path, CancellationToken cancellationToken = default)
+        {
+            using var stream = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.None);
+            await DownloadAsync(fileEntry, stream, cancellationToken);
+        }
+
+        public async Task DownloadAsync(IFileEntry fileEntry, Stream stream, CancellationToken cancellationToken = default)
+        {
             ShareFileClient file = await GetShareFileClientAsync(fileEntry, false, cancellationToken);
             var download = await file.DownloadAsync(cancellationToken: cancellationToken);
-            using var stream = new MemoryStream();
             await download.Value.Content.CopyToAsync(stream, cancellationToken);
-            return stream.ToArray();
         }
 
         public Task UnArchiveAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)

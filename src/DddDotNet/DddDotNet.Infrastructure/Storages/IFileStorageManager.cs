@@ -11,6 +11,10 @@ namespace DddDotNet.Infrastructure.Storages
 
         Task<byte[]> ReadAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default);
 
+        Task DownloadAsync(IFileEntry fileEntry, string path, CancellationToken cancellationToken = default);
+
+        Task DownloadAsync(IFileEntry fileEntry, Stream stream, CancellationToken cancellationToken = default);
+
         Task DeleteAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default);
 
         Task ArchiveAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default);

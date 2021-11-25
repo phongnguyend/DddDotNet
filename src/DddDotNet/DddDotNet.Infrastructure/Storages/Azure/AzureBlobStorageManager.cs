@@ -38,10 +38,21 @@ namespace DddDotNet.Infrastructure.Storages.Azure
 
         public async Task<byte[]> ReadAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
         {
-            BlobClient blob = _container.GetBlobClient(GetBlobName(fileEntry));
             using var stream = new MemoryStream();
-            await blob.DownloadToAsync(stream, cancellationToken);
+            await DownloadAsync(fileEntry, stream, cancellationToken);
             return stream.ToArray();
+        }
+
+        public async Task DownloadAsync(IFileEntry fileEntry, string path, CancellationToken cancellationToken = default)
+        {
+            BlobClient blob = _container.GetBlobClient(GetBlobName(fileEntry));
+            await blob.DownloadToAsync(path, cancellationToken);
+        }
+
+        public async Task DownloadAsync(IFileEntry fileEntry, Stream stream, CancellationToken cancellationToken = default)
+        {
+            BlobClient blob = _container.GetBlobClient(GetBlobName(fileEntry));
+            await blob.DownloadToAsync(stream, cancellationToken);
         }
 
         public async Task ArchiveAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)

@@ -48,10 +48,25 @@ namespace DddDotNet.IntegrationTests.Infrastructure.Storages
 
             await ftpStorageManager.UnArchiveAsync(fileEntry);
 
+            var path = Path.GetTempFileName();
+            await ftpStorageManager.DownloadAsync(fileEntry, path);
+            var content3 = File.ReadAllText(path);
+            File.Delete(path);
+
+            path = Path.GetTempFileName();
+            using (var tempFileStream = File.OpenWrite(path))
+            {
+                await ftpStorageManager.DownloadAsync(fileEntry, tempFileStream);
+            }
+            var content4 = File.ReadAllText(path);
+            File.Delete(path);
+
             await ftpStorageManager.DeleteAsync(fileEntry);
 
             Assert.Equal("Test", content1);
             Assert.Equal("Test2", content2);
+            Assert.Equal("Test2", content3);
+            Assert.Equal("Test2", content4);
         }
     }
 }
