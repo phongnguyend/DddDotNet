@@ -2,6 +2,7 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 
@@ -9,10 +10,10 @@ namespace DddDotNet.Infrastructure.MessageBrokers.RabbitMQ
 {
     public class RabbitMQReceiver<T> : IMessageReceiver<T>, IDisposable
     {
+        private readonly RabbitMQReceiverOptions _options;
         private IConnection _connection;
         private IModel _channel;
         private string _queueName;
-        private readonly RabbitMQReceiverOptions _options;
 
         public RabbitMQReceiver(RabbitMQReceiverOptions options)
         {
@@ -42,7 +43,16 @@ namespace DddDotNet.Infrastructure.MessageBrokers.RabbitMQ
 
             if (_options.AutomaticCreateEnabled)
             {
-                _channel.QueueDeclare(_options.QueueName, true, false, false, null);
+                var arguments = new Dictionary<string, object>();
+
+                if (_options.SingleActiveConsumer)
+                {
+                    arguments["x-single-active-consumer"] = true;
+                }
+
+                arguments = arguments.Count == 0 ? null : arguments;
+
+                _channel.QueueDeclare(_options.QueueName, true, false, false, arguments);
                 _channel.QueueBind(_options.QueueName, _options.ExchangeName, _options.RoutingKey, null);
             }
 

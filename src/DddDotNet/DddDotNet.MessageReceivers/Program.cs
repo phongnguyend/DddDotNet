@@ -3,6 +3,7 @@ using Azure.Storage.Queues;
 using DddDotNet.Infrastructure.MessageBrokers.AzureEventHub;
 using DddDotNet.Infrastructure.MessageBrokers.AzureQueue;
 using DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus;
+using DddDotNet.Infrastructure.MessageBrokers.RabbitMQ;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Text;
@@ -97,6 +98,17 @@ namespace DddDotNet.MessageReceivers
                 {
                     Console.WriteLine(ex);
                 }
+            });
+
+            var rabbitMQReceiverOptions = new RabbitMQReceiverOptions()
+            {
+                AutomaticCreateEnabled = true
+            };
+            config.GetSection("MessageBroker:RabbitMQ").Bind(rabbitMQReceiverOptions);
+            var rabbitMqReceiver = new RabbitMQReceiver<Message>(rabbitMQReceiverOptions);
+            rabbitMqReceiver.Receive((message, metaData) =>
+            {
+                Console.WriteLine($"RabbitMQ: {message}");
             });
 
             Console.ReadLine();
