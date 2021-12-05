@@ -102,7 +102,8 @@ namespace DddDotNet.MessageReceivers
 
             var rabbitMQReceiverOptions = new RabbitMQReceiverOptions()
             {
-                AutomaticCreateEnabled = true
+                AutomaticCreateEnabled = true,
+                QueueType = "quorum",
             };
             config.GetSection("MessageBroker:RabbitMQ").Bind(rabbitMQReceiverOptions);
             var rabbitMqReceiver = new RabbitMQReceiver<Message>(rabbitMQReceiverOptions);

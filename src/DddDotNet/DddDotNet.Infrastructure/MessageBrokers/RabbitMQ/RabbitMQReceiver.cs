@@ -45,6 +45,15 @@ namespace DddDotNet.Infrastructure.MessageBrokers.RabbitMQ
             {
                 var arguments = new Dictionary<string, object>();
 
+                if (string.Equals(_options.QueueType, "Quorum", StringComparison.OrdinalIgnoreCase))
+                {
+                    arguments["x-queue-type"] = "quorum";
+                }
+                else if (string.Equals(_options.QueueType, "Stream", StringComparison.OrdinalIgnoreCase))
+                {
+                    arguments["x-queue-type"] = "stream";
+                }
+
                 if (_options.SingleActiveConsumer)
                 {
                     arguments["x-single-active-consumer"] = true;
