@@ -11,6 +11,16 @@ namespace DddDotNet.CrossCuttingConcerns.ExtensionMethods
             return source.Skip((page - 1) * pageSize).Take(pageSize);
         }
 
+        public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> source, int pageSize)
+        {
+            var numberOfRows = source.Count();
+            var numberOfPages = (int)Math.Ceiling(numberOfRows * 1.0 / pageSize);
+            for (var i = 1; i <= numberOfPages; i++)
+            {
+                yield return source.Paged(i, pageSize);
+            }
+        }
+
         public static IEnumerable<T> WhereIf<T>(this IEnumerable<T> query, bool condition, Func<T, bool> predicate)
         {
             return condition ? query.Where(predicate) : query;
