@@ -19,6 +19,11 @@ namespace DddDotNet.CrossCuttingConcerns.ExtensionMethods
             return string.IsNullOrEmpty(value) ? value : value.Substring(value.Length - Math.Min(value.Length, length));
         }
 
+        public static string LimitLength(this string source, int maxLength)
+        {
+            return source.Left(maxLength);
+        }
+
         public static bool In(this string value, List<string> list)
         {
             return list.Contains(value, StringComparer.OrdinalIgnoreCase);
@@ -60,7 +65,7 @@ namespace DddDotNet.CrossCuttingConcerns.ExtensionMethods
 
         public static string Remove(this string source, params string[] removedValues)
         {
-            removedValues.ToList().ForEach(x => source = source.Replace(x, ""));
+            removedValues.ToList().ForEach(x => source = source.Replace(x, string.Empty));
             return source;
         }
     }
