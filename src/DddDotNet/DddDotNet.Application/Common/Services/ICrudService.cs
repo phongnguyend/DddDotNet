@@ -1,6 +1,7 @@
 ﻿using DddDotNet.Domain.Entities;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DddDotNet.Application
@@ -8,12 +9,16 @@ namespace DddDotNet.Application
     public interface ICrudService<T>
         where T : AggregateRoot<Guid>
     {
-        Task<List<T>> GetAsync();
+        Task<List<T>> GetAsync(CancellationToken cancellationToken = default);
 
-        Task<T> GetByIdAsync(Guid guid);
+        Task<T> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
-        Task AddOrUpdateAsync(T entity);
+        Task AddOrUpdateAsync(T entity, CancellationToken cancellationToken = default);
 
-        Task DeleteAsync(T entity);
+        Task AddAsync(T entity, CancellationToken cancellationToken = default);
+
+        Task UpdateAsync(T entity, CancellationToken cancellationToken = default);
+
+        Task DeleteAsync(T entity, CancellationToken cancellationToken = default);
     }
 }
