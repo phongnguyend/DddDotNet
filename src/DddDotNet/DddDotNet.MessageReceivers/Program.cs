@@ -9,7 +9,6 @@ using DddDotNet.Infrastructure.MessageBrokers.RabbitMQ;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace DddDotNet.MessageReceivers
 {
@@ -43,9 +42,8 @@ namespace DddDotNet.MessageReceivers
 
     class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
-
             var config = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")
             .AddUserSecrets("09f024f8-e8d1-4b78-9ddd-da941692e8fa")
