@@ -1,5 +1,6 @@
 ﻿using Azure.Messaging.EventGrid;
 using Azure.Storage.Queues;
+using DddDotNet.Infrastructure.MessageBrokers.AmazonSQS;
 using DddDotNet.Infrastructure.MessageBrokers.AzureEventHub;
 using DddDotNet.Infrastructure.MessageBrokers.AzureQueue;
 using DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus;
@@ -46,6 +47,14 @@ namespace DddDotNet.MessageReceivers
             .AddJsonFile("appsettings.json")
             .AddUserSecrets("09f024f8-e8d1-4b78-9ddd-da941692e8fa")
             .Build();
+
+            var amazonSqsOptions = new AmazonSqsOptions();
+            config.GetSection("MessageBroker:AmazonSQS").Bind(amazonSqsOptions);
+            var amazonSqs = new AmazonSqsReceiver<Message>(amazonSqsOptions);
+            amazonSqs.Receive((message, metaData) =>
+            {
+                Console.WriteLine($"AmazonSqs: {message}");
+            });
 
             var azureQueue = new AzureQueueReceiver<Message>(
                 config["MessageBroker:AzureQueue:ConnectionString"],
