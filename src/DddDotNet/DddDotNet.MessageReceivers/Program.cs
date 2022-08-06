@@ -1,6 +1,7 @@
 ﻿using Azure.Messaging.EventGrid;
 using Azure.Storage.Queues;
 using DddDotNet.Infrastructure.MessageBrokers.AmazonSQS;
+using DddDotNet.Infrastructure.MessageBrokers.ApacheActiveMQ;
 using DddDotNet.Infrastructure.MessageBrokers.AzureEventHub;
 using DddDotNet.Infrastructure.MessageBrokers.AzureQueue;
 using DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus;
@@ -8,6 +9,7 @@ using DddDotNet.Infrastructure.MessageBrokers.RabbitMQ;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace DddDotNet.MessageReceivers
 {
@@ -41,8 +43,9 @@ namespace DddDotNet.MessageReceivers
 
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
+
             var config = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")
             .AddUserSecrets("09f024f8-e8d1-4b78-9ddd-da941692e8fa")
@@ -54,6 +57,14 @@ namespace DddDotNet.MessageReceivers
             amazonSqs.Receive((message, metaData) =>
             {
                 Console.WriteLine($"AmazonSqs: {message}");
+            });
+
+            var apacheActiveMqOptions = new ApacheActiveMQOptions();
+            config.GetSection("MessageBroker:ApacheActiveMQ").Bind(apacheActiveMqOptions);
+            var apacheActiveMq = new ApacheActiveMQReceiver<Message>(apacheActiveMqOptions);
+            apacheActiveMq.Receive((message, metaData) =>
+            {
+                Console.WriteLine($"ApacheActiveMQ: {message}");
             });
 
             var azureQueue = new AzureQueueReceiver<Message>(
