@@ -1,7 +1,5 @@
 ﻿using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using RabbitMQ.Client;
-using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,11 +30,11 @@ namespace DddDotNet.Infrastructure.MessageBrokers.RabbitMQ
             {
                 using var connection = _connectionFactory.CreateConnection();
                 using var channel = connection.CreateModel();
-                var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new Message<T>
+                var body = new Message<T>
                 {
                     Data = message,
                     MetaData = metaData,
-                }));
+                }.GetBytes();
                 var properties = channel.CreateBasicProperties();
                 properties.Persistent = true;
 

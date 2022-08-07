@@ -1,7 +1,6 @@
 ﻿using Confluent.Kafka;
 using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using System;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,11 +29,11 @@ namespace DddDotNet.Infrastructure.MessageBrokers.Kafka
         {
             _ = await _producer.ProduceAsync(_topic, new Message<Null, string>
             {
-                Value = JsonSerializer.Serialize(new Message<T>
+                Value = new Message<T>
                 {
                     Data = message,
                     MetaData = metaData,
-                }),
+                }.SerializeObject(),
             }, cancellationToken);
         }
     }

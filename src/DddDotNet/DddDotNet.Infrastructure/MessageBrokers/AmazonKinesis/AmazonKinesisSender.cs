@@ -4,7 +4,6 @@ using Amazon.Kinesis.Model;
 using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using System;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,11 +25,11 @@ namespace DddDotNet.Infrastructure.MessageBrokers.AmazonKinesis
             var putRecordReponse = await kinesisClient.PutRecordAsync(new PutRecordRequest
             {
                 StreamName = _options.StreamName,
-                Data = new MemoryStream(Encoding.UTF8.GetBytes(new Message<T>
+                Data = new MemoryStream(new Message<T>
                 {
                     Data = message,
                     MetaData = metaData,
-                }.SerializeObject())),
+                }.GetBytes()),
                 PartitionKey = $"PartitionKey-{Guid.NewGuid()}",
             });
         }

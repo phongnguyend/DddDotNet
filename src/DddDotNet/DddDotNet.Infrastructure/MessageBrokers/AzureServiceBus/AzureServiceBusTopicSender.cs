@@ -1,7 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
 using DddDotNet.Domain.Infrastructure.MessageBrokers;
-using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,11 +20,11 @@ namespace DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus
         {
             await using var client = new ServiceBusClient(_connectionString);
             ServiceBusSender sender = client.CreateSender(_topicName);
-            var serviceBusMessage = new ServiceBusMessage(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new Message<T>
+            var serviceBusMessage = new ServiceBusMessage(new Message<T>
             {
                 Data = message,
                 MetaData = metaData,
-            })));
+            }.GetBytes());
             await sender.SendMessageAsync(serviceBusMessage, cancellationToken);
         }
     }

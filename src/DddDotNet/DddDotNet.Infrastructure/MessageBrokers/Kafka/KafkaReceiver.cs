@@ -1,9 +1,9 @@
-﻿using DddDotNet.Domain.Infrastructure.MessageBrokers;
-using Confluent.Kafka;
+﻿using Confluent.Kafka;
+using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text.Json;
 
 namespace DddDotNet.Infrastructure.MessageBrokers.Kafka
 {
