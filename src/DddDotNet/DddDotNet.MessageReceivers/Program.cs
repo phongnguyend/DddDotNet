@@ -5,6 +5,7 @@ using DddDotNet.Infrastructure.MessageBrokers.ApacheActiveMQ;
 using DddDotNet.Infrastructure.MessageBrokers.AzureEventHub;
 using DddDotNet.Infrastructure.MessageBrokers.AzureQueue;
 using DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus;
+using DddDotNet.Infrastructure.MessageBrokers.GooglePubSub;
 using DddDotNet.Infrastructure.MessageBrokers.RabbitMQ;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -116,6 +117,14 @@ namespace DddDotNet.MessageReceivers
                 {
                     Console.WriteLine(ex);
                 }
+            });
+
+            var googlePubSubOptions = new GooglePubSubOptions();
+            config.GetSection("MessageBroker:GooglePubSub").Bind(googlePubSubOptions);
+            var googlePubSub = new GooglePubSubReceiver<Message>(googlePubSubOptions);
+            googlePubSub.Receive((message, metaData) =>
+            {
+                Console.WriteLine($"GooglePubSub: {message}");
             });
 
             var rabbitMQReceiverOptions = new RabbitMQReceiverOptions()
