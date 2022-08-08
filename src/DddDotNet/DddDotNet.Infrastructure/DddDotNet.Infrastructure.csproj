@@ -62,6 +62,7 @@
     <PackageReference Include="EPPlus" Version="4.5.3.2" />
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
     <PackageReference Include="FluentFTP" Version="34.0.2" />
+    <PackageReference Include="Google.Cloud.Storage.V1" Version="4.1.0" />
     <PackageReference Include="Google.Protobuf" Version="3.10.0" />
     <PackageReference Include="Grpc.Net.Client" Version="2.25.0" />
     <PackageReference Include="IdentityModel" Version="4.4.0" />

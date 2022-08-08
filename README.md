@@ -5,6 +5,7 @@
   | Azure Blob Storage| ✅ | [/Storages/Azure](/src/DddDotNet/DddDotNet.Infrastructure/Storages/Azure) |
   | Azure File Share | ✅ | [/Storages/Azure](/src/DddDotNet/DddDotNet.Infrastructure/Storages/Azure) |
   | FTP / FTPS | ✅ | [/Storages/Ftp](/src/DddDotNet/DddDotNet.Infrastructure/Storages/Ftp) |
+  | Google Cloud Storage | ✅ | [/Storages/Google](/src/DddDotNet/DddDotNet.Infrastructure/Storages/Google) |
   | Local | ✅ | [/Storages/Local](/src/DddDotNet/DddDotNet.Infrastructure/Storages/Local) |
   | SFTP | ✅ | [/Storages/Sfpt](/src/DddDotNet/DddDotNet.Infrastructure/Storages/Sfpt) |
   | SMB | ✅ | [/Storages/Smb](/src/DddDotNet/DddDotNet.Infrastructure/Storages/Smb) |
