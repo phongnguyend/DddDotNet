@@ -1,6 +1,6 @@
-﻿namespace DddDotNet.Infrastructure.Notification.Email.SmtpClient
+﻿namespace DddDotNet.Infrastructure.Notification.Email.Smtp
 {
-    public class SmtpClientOptions
+    public class SmtpOptions
     {
         public string Host { get; set; }
 

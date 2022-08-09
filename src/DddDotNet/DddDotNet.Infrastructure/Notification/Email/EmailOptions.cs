@@ -1,5 +1,5 @@
 ﻿using DddDotNet.Infrastructure.Notification.Email.SendGrid;
-using DddDotNet.Infrastructure.Notification.Email.SmtpClient;
+using DddDotNet.Infrastructure.Notification.Email.Smtp;
 
 namespace DddDotNet.Infrastructure.Notification.Email
 {
@@ -7,7 +7,7 @@ namespace DddDotNet.Infrastructure.Notification.Email
     {
         public string Provider { get; set; }
 
-        public SmtpClientOptions SmtpClient { get; set; }
+        public SmtpOptions SmtpClient { get; set; }
 
         public SendGridOptions SendGrid { get; set; }
 

@@ -3,13 +3,13 @@ using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.Notification.Email.SmtpClient
+namespace DddDotNet.Infrastructure.Notification.Email.Smtp
 {
-    public class SmtpClientEmailNotification : IEmailNotification
+    public class SmtpEmailNotification : IEmailNotification
     {
-        private readonly SmtpClientOptions _options;
+        private readonly SmtpOptions _options;
 
-        public SmtpClientEmailNotification(SmtpClientOptions options)
+        public SmtpEmailNotification(SmtpOptions options)
         {
             _options = options;
         }

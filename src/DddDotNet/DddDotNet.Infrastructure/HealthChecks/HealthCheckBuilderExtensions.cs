@@ -1,5 +1,6 @@
 ﻿using DddDotNet.Infrastructure.HealthChecks;
 using DddDotNet.Infrastructure.MessageBrokers.RabbitMQ;
+using DddDotNet.Infrastructure.Notification.Email.Smtp;
 using DddDotNet.Infrastructure.Storages.Amazon;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
@@ -67,6 +68,22 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder.Add(new HealthCheckRegistration(
                 name,
                 new RabbitMQHealthCheck(options),
+                failureStatus,
+                tags,
+                timeout));
+        }
+
+        public static IHealthChecksBuilder AddSmtp(
+            this IHealthChecksBuilder builder,
+            SmtpHealthCheckOptions options,
+            string name = default,
+            HealthStatus? failureStatus = default,
+            IEnumerable<string> tags = default,
+            TimeSpan? timeout = default)
+        {
+            return builder.Add(new HealthCheckRegistration(
+                name,
+                new SmtpHealthCheck(options),
                 failureStatus,
                 tags,
                 timeout));

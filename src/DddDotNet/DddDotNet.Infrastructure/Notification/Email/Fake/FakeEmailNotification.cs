@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.Notification.Email.SmtpClient
+namespace DddDotNet.Infrastructure.Notification.Email.Fake
 {
     public class FakeEmailNotification : IEmailNotification
     {

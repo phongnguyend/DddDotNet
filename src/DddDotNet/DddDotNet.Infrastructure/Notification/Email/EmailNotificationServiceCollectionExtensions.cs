@@ -1,14 +1,15 @@
 ﻿using DddDotNet.Infrastructure.Notification.Email;
+using DddDotNet.Infrastructure.Notification.Email.Fake;
 using DddDotNet.Infrastructure.Notification.Email.SendGrid;
-using DddDotNet.Infrastructure.Notification.Email.SmtpClient;
+using DddDotNet.Infrastructure.Notification.Email.Smtp;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class EmailNotificationServiceCollectionExtensions
     {
-        public static IServiceCollection AddSmtpClientEmailNotification(this IServiceCollection services, SmtpClientOptions options)
+        public static IServiceCollection AddSmtpEmailNotification(this IServiceCollection services, SmtpOptions options)
         {
-            services.AddSingleton<IEmailNotification>(new SmtpClientEmailNotification(options));
+            services.AddSingleton<IEmailNotification>(new SmtpEmailNotification(options));
             return services;
         }
 
@@ -32,7 +33,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
             else if (options.UsedSmtpClient())
             {
-                services.AddSmtpClientEmailNotification(options.SmtpClient);
+                services.AddSmtpEmailNotification(options.SmtpClient);
             }
             else if (options.UsedSendGrid())
             {
