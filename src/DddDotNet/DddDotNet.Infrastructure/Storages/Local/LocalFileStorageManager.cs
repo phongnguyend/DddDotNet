@@ -6,9 +6,9 @@ namespace DddDotNet.Infrastructure.Storages.Local
 {
     public class LocalFileStorageManager : IFileStorageManager
     {
-        private readonly LocalOption _option;
+        private readonly LocalOptions _option;
 
-        public LocalFileStorageManager(LocalOption option)
+        public LocalFileStorageManager(LocalOptions option)
         {
             _option = option;
         }
@@ -49,7 +49,7 @@ namespace DddDotNet.Infrastructure.Storages.Local
 
         public Task DownloadAsync(IFileEntry fileEntry, string path, CancellationToken cancellationToken = default)
         {
-            File.Copy(Path.Combine(_option.Path, fileEntry.FileLocation), path);
+            File.Copy(Path.Combine(_option.Path, fileEntry.FileLocation), path, true);
             return Task.CompletedTask;
         }
 

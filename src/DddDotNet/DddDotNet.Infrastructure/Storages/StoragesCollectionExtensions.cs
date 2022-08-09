@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class StoragesCollectionExtensions
     {
-        public static IServiceCollection AddLocalStorageManager(this IServiceCollection services, LocalOption options)
+        public static IServiceCollection AddLocalStorageManager(this IServiceCollection services, LocalOptions options)
         {
             services.AddSingleton<IFileStorageManager>(new LocalFileStorageManager(options));
 

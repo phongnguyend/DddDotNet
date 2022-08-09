@@ -1,5 +1,4 @@
-﻿using DddDotNet.Infrastructure.Storages;
-using DddDotNet.Infrastructure.Storages.Amazon;
+﻿using DddDotNet.Infrastructure.Storages.Local;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
@@ -10,24 +9,24 @@ using Xunit;
 
 namespace DddDotNet.IntegrationTests.Infrastructure.Storages
 {
-    public class AmazonS3StorageManagerTests
+    public class LocalFileStorageManagerTests
     {
-        AmazonOptions _options = new AmazonOptions();
+        LocalOptions _options = new LocalOptions();
 
-        public AmazonS3StorageManagerTests()
+        public LocalFileStorageManagerTests()
         {
             var config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
                 .AddUserSecrets("09f024f8-e8d1-4b78-9ddd-da941692e8fa")
                 .Build();
 
-            config.GetSection("Storage:Amazon").Bind(_options);
+            config.GetSection("Storage:Local").Bind(_options);
         }
 
         [Fact]
         public async Task CreateAsync_Success()
         {
-            AmazonS3StorageManager amazonS3StorageManager = new AmazonS3StorageManager(_options);
+            LocalFileStorageManager localFileStorageManager = new LocalFileStorageManager(_options);
 
             var fileEntry = new FileEntry
             {
@@ -36,34 +35,34 @@ namespace DddDotNet.IntegrationTests.Infrastructure.Storages
 
             var fileStream = new MemoryStream(Encoding.UTF8.GetBytes("Test"));
 
-            await amazonS3StorageManager.CreateAsync(fileEntry, fileStream);
+            await localFileStorageManager.CreateAsync(fileEntry, fileStream);
 
-            var content1 = Encoding.UTF8.GetString(await amazonS3StorageManager.ReadAsync(fileEntry));
+            var content1 = Encoding.UTF8.GetString(await localFileStorageManager.ReadAsync(fileEntry));
 
             fileStream = new MemoryStream(Encoding.UTF8.GetBytes("Test2"));
 
-            await amazonS3StorageManager.CreateAsync(fileEntry, fileStream);
+            await localFileStorageManager.CreateAsync(fileEntry, fileStream);
 
-            var content2 = Encoding.UTF8.GetString(await amazonS3StorageManager.ReadAsync(fileEntry));
+            var content2 = Encoding.UTF8.GetString(await localFileStorageManager.ReadAsync(fileEntry));
 
-            await amazonS3StorageManager.ArchiveAsync(fileEntry);
+            await localFileStorageManager.ArchiveAsync(fileEntry);
 
-            await amazonS3StorageManager.UnArchiveAsync(fileEntry);
+            await localFileStorageManager.UnArchiveAsync(fileEntry);
 
             var path = Path.GetTempFileName();
-            await amazonS3StorageManager.DownloadAsync(fileEntry, path);
+            await localFileStorageManager.DownloadAsync(fileEntry, path);
             var content3 = File.ReadAllText(path);
             File.Delete(path);
 
             path = Path.GetTempFileName();
             using (var tempFileStream = File.OpenWrite(path))
             {
-                await amazonS3StorageManager.DownloadAsync(fileEntry, tempFileStream);
+                await localFileStorageManager.DownloadAsync(fileEntry, tempFileStream);
             }
             var content4 = File.ReadAllText(path);
             File.Delete(path);
 
-            await amazonS3StorageManager.DeleteAsync(fileEntry);
+            await localFileStorageManager.DeleteAsync(fileEntry);
 
             Assert.Equal("Test", content1);
             Assert.Equal("Test2", content2);
@@ -74,16 +73,12 @@ namespace DddDotNet.IntegrationTests.Infrastructure.Storages
         [Fact]
         public async Task HealthCheck_Success()
         {
-            var healthCheck = new AmazonS3HealthCheck(_options);
+            var healthCheck = new LocalFileHealthCheck(new LocalFileHealthCheckOptions
+            {
+                Path = _options.Path
+            });
             var checkResult = await healthCheck.CheckHealthAsync(null);
             Assert.Equal(HealthStatus.Healthy, checkResult.Status);
         }
-    }
-
-    public class FileEntry : IFileEntry
-    {
-        public Guid Id { get; set; }
-        public string FileName { get; set; }
-        public string FileLocation { get; set; }
     }
 }

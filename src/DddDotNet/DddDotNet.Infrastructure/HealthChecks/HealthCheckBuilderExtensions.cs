@@ -2,6 +2,7 @@
 using DddDotNet.Infrastructure.MessageBrokers.RabbitMQ;
 using DddDotNet.Infrastructure.Notification.Email.Smtp;
 using DddDotNet.Infrastructure.Storages.Amazon;
+using DddDotNet.Infrastructure.Storages.Local;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
 using System.Collections.Generic;
@@ -84,6 +85,22 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder.Add(new HealthCheckRegistration(
                 name,
                 new SmtpHealthCheck(options),
+                failureStatus,
+                tags,
+                timeout));
+        }
+
+        public static IHealthChecksBuilder AddLocalFile(
+            this IHealthChecksBuilder builder,
+            LocalFileHealthCheckOptions options,
+            string name = default,
+            HealthStatus? failureStatus = default,
+            IEnumerable<string> tags = default,
+            TimeSpan? timeout = default)
+        {
+            return builder.Add(new HealthCheckRegistration(
+                name,
+                new LocalFileHealthCheck(options),
                 failureStatus,
                 tags,
                 timeout));
