@@ -69,6 +69,13 @@ namespace DddDotNet.IntegrationTests.Infrastructure.Storages
             Assert.Equal("Test2", content3);
             Assert.Equal("Test2", content4);
         }
+
+        [Fact]
+        public async Task HealthCheck_Success()
+        {
+            var healthCheck = new AmazonS3HealthCheck(_options);
+            var checkResult = await healthCheck.CheckHealthAsync(null);
+        }
     }
 
     public class FileEntry : IFileEntry

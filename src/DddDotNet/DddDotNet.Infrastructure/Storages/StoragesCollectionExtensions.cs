@@ -1,6 +1,4 @@
-﻿using Amazon;
-using Amazon.S3;
-using DddDotNet.Infrastructure.Storages;
+﻿using DddDotNet.Infrastructure.Storages;
 using DddDotNet.Infrastructure.Storages.Amazon;
 using DddDotNet.Infrastructure.Storages.Azure;
 using DddDotNet.Infrastructure.Storages.Fake;
@@ -60,17 +58,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 if (healthChecksBuilder != null)
                 {
-                    healthChecksBuilder.AddS3(
-                    s3 =>
-                    {
-                        s3.AccessKey = options.Amazon.AccessKeyID;
-                        s3.SecretKey = options.Amazon.SecretAccessKey;
-                        s3.BucketName = options.Amazon.BucketName;
-                        s3.S3Config = new AmazonS3Config
-                        {
-                            RegionEndpoint = RegionEndpoint.GetBySystemName(options.Amazon.RegionEndpoint),
-                        };
-                    },
+                    healthChecksBuilder.AddAmazonS3(
+                    options.Amazon,
                     name: "Storage (Amazon S3)",
                     failureStatus: HealthStatus.Degraded);
                 }
