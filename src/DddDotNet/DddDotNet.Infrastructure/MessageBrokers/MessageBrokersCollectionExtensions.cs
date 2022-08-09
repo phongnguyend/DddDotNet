@@ -139,10 +139,14 @@ namespace Microsoft.Extensions.DependencyInjection
 
                     if (checkDulicated == null || !checkDulicated.Contains(name))
                     {
-                        healthChecksBuilder.AddRabbitMQ(
-                            rabbitConnectionString: options.RabbitMQ.ConnectionString,
-                            name: name,
-                            failureStatus: HealthStatus.Degraded);
+                        healthChecksBuilder.AddRabbitMQ(new RabbitMQHealthCheckOptions
+                        {
+                            HostName = options.RabbitMQ.HostName,
+                            UserName = options.RabbitMQ.UserName,
+                            Password = options.RabbitMQ.Password,
+                        },
+                        name: name,
+                        failureStatus: HealthStatus.Degraded);
                     }
 
                     checkDulicated?.Add(name);

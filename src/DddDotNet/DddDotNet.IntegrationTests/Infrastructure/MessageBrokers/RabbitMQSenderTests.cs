@@ -1,6 +1,8 @@
 ﻿using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using DddDotNet.Infrastructure.MessageBrokers.RabbitMQ;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -32,6 +34,32 @@ namespace DddDotNet.IntegrationTests.Infrastructure.MessageBrokers
                 var sender = new RabbitMQSender<Message>(_rabbitMQSenderOptions);
                 await sender.SendAsync(message, metaData);
             }
+        }
+
+        [Fact]
+        public async Task HealthCheck_Healthy()
+        {
+            var healthCheck = new RabbitMQHealthCheck(new RabbitMQHealthCheckOptions
+            {
+                HostName = _rabbitMQSenderOptions.HostName,
+                UserName = _rabbitMQSenderOptions.UserName,
+                Password = _rabbitMQSenderOptions.Password,
+            });
+            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+            Assert.Equal(HealthStatus.Healthy, checkResult.Status);
+        }
+
+        [Fact]
+        public async Task HealthCheck_Degraded()
+        {
+            var healthCheck = new RabbitMQHealthCheck(new RabbitMQHealthCheckOptions
+            {
+                HostName = _rabbitMQSenderOptions.HostName,
+                UserName = Guid.NewGuid().ToString(),
+                Password = Guid.NewGuid().ToString(),
+            });
+            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+            Assert.Equal(HealthStatus.Degraded, checkResult.Status);
         }
     }
 }
