@@ -1,6 +1,8 @@
 ﻿using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using DddDotNet.Infrastructure.MessageBrokers.AzureQueue;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -30,6 +32,26 @@ namespace DddDotNet.IntegrationTests.Infrastructure.MessageBrokers
                 var sender = new AzureQueueSender<Message>(_connectionString, "integration-test");
                 await sender.SendAsync(message, metaData);
             }
+        }
+
+        [Fact]
+        public async Task HealthCheck_Healthy()
+        {
+            var healthCheck = new AzureQueueStorageHealthCheck(
+                connectionString: _connectionString,
+                queueName: "integration-test");
+            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+            Assert.Equal(HealthStatus.Healthy, checkResult.Status);
+        }
+
+        [Fact]
+        public async Task HealthCheck_Degraded()
+        {
+            var healthCheck = new AzureQueueStorageHealthCheck(
+                connectionString: _connectionString,
+                queueName: Guid.NewGuid().ToString());
+            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+            Assert.Equal(HealthStatus.Degraded, checkResult.Status);
         }
     }
 }

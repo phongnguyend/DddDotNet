@@ -21,7 +21,7 @@
   | Apache ActiveMQ | ✅ | | [/MessageBrokers/ApacheActiveMQ](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/ApacheActiveMQ) |
   | Azure Event Grid | ✅ | | [/MessageBrokers/AzureEventGrid](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/AzureEventGrid) |
   | Azure Event Hub | ✅ | | [/MessageBrokers/AzureEventHub](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/AzureEventHub) |
-  | Azure Queue Storage| ✅ | | [/MessageBrokers/AzureQueue](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/AzureQueue) |
+  | Azure Queue Storage| ✅ | ✅ | [/MessageBrokers/AzureQueue](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/AzureQueue) |
   | Azure Service Bus | ✅ | | [/MessageBrokers/AzureServiceBus](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/AzureServiceBus) |
   | Google Cloud Pub/Sub | ✅ | | [/MessageBrokers/GooglePubSub](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/GooglePubSub) |
   | Kafka | ✅ | | [/MessageBrokers/Kafka](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/Kafka) |

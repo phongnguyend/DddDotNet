@@ -1,4 +1,5 @@
 ﻿using DddDotNet.Infrastructure.HealthChecks;
+using DddDotNet.Infrastructure.MessageBrokers.AzureQueue;
 using DddDotNet.Infrastructure.MessageBrokers.RabbitMQ;
 using DddDotNet.Infrastructure.Notification.Email.Smtp;
 using DddDotNet.Infrastructure.Storages.Amazon;
@@ -70,6 +71,25 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder.Add(new HealthCheckRegistration(
                 name,
                 new AzureBlobStorageHealthCheck(azureBlobOptions),
+                failureStatus,
+                tags,
+                timeout));
+        }
+
+        public static IHealthChecksBuilder AddAzureQueueStorage(
+            this IHealthChecksBuilder builder,
+            string connectionString,
+            string queueName,
+            string name = default,
+            HealthStatus? failureStatus = default,
+            IEnumerable<string> tags = default,
+            TimeSpan? timeout = default)
+        {
+            return builder.Add(new HealthCheckRegistration(
+                name,
+                new AzureQueueStorageHealthCheck(
+                    connectionString: connectionString,
+                    queueName: queueName),
                 failureStatus,
                 tags,
                 timeout));
