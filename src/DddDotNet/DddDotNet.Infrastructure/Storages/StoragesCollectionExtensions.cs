@@ -45,9 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 if (healthChecksBuilder != null)
                 {
-                    healthChecksBuilder.AddAzureBlobStorage(
-                        options.Azure.ConnectionString,
-                        containerName: options.Azure.Container,
+                    healthChecksBuilder.AddAzureBlobStorage(options.Azure,
                         name: "Storage (Azure Blob)",
                         failureStatus: HealthStatus.Degraded);
                 }
@@ -70,7 +68,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 if (healthChecksBuilder != null)
                 {
-                    healthChecksBuilder.AddFilePathWrite(options.Local.Path,
+                    healthChecksBuilder.AddLocalFile(new LocalFileHealthCheckOptions
+                    {
+                        Path = options.Local.Path,
+                    },
                     name: "Storage (Local Directory)",
                     failureStatus: HealthStatus.Degraded);
                 }

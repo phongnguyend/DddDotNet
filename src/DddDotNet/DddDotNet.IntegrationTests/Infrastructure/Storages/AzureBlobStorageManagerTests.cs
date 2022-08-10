@@ -1,5 +1,6 @@
 ﻿using DddDotNet.Infrastructure.Storages.Azure;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
 using System.IO;
 using System.Text;
@@ -67,6 +68,14 @@ namespace DddDotNet.IntegrationTests.Infrastructure.Storages
             Assert.Equal("Test2", content2);
             Assert.Equal("Test2", content3);
             Assert.Equal("Test2", content4);
+        }
+
+        [Fact]
+        public async Task HealthCheck_Success()
+        {
+            var healthCheck = new AzureBlobStorageHealthCheck(_options);
+            var checkResult = await healthCheck.CheckHealthAsync(null);
+            Assert.Equal(HealthStatus.Healthy, checkResult.Status);
         }
     }
 }
