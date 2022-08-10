@@ -24,7 +24,7 @@
   | Azure Queue Storage| ✅ | ✅ | [/MessageBrokers/AzureQueue](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/AzureQueue) |
   | Azure Service Bus | ✅ | ✅ | [/MessageBrokers/AzureServiceBus](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/AzureServiceBus) |
   | Google Cloud Pub/Sub | ✅ | | [/MessageBrokers/GooglePubSub](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/GooglePubSub) |
-  | Kafka | ✅ | | [/MessageBrokers/Kafka](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/Kafka) |
+  | Kafka | ✅ | ✅ | [/MessageBrokers/Kafka](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/Kafka) |
   | RabbitMQ | ✅ | ✅ | [/MessageBrokers/RabbitMQ](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/RabbitMQ) |
 
 ## Email Providers

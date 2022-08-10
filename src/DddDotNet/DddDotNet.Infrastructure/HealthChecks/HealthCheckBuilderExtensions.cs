@@ -1,6 +1,7 @@
 ﻿using DddDotNet.Infrastructure.HealthChecks;
 using DddDotNet.Infrastructure.MessageBrokers.AzureQueue;
 using DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus;
+using DddDotNet.Infrastructure.MessageBrokers.Kafka;
 using DddDotNet.Infrastructure.MessageBrokers.RabbitMQ;
 using DddDotNet.Infrastructure.Notification.Email.Smtp;
 using DddDotNet.Infrastructure.Notification.Web.SignalR;
@@ -152,6 +153,23 @@ namespace Microsoft.Extensions.DependencyInjection
                     connectionString: connectionString,
                     topicName: topicName,
                     subscriptionName: subscriptionName),
+                failureStatus,
+                tags,
+                timeout));
+        }
+
+        public static IHealthChecksBuilder AddKafka(
+            this IHealthChecksBuilder builder,
+            string bootstrapServers,
+            string topic,
+            string name = default,
+            HealthStatus? failureStatus = default,
+            IEnumerable<string> tags = default,
+            TimeSpan? timeout = default)
+        {
+            return builder.Add(new HealthCheckRegistration(
+                name,
+                new KafkaHealthCheck(bootstrapServers: bootstrapServers, topic: topic),
                 failureStatus,
                 tags,
                 timeout));

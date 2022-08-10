@@ -163,11 +163,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     if (checkDulicated == null || !checkDulicated.Contains(name))
                     {
                         healthChecksBuilder.AddKafka(
-                            setup =>
-                            {
-                                setup.BootstrapServers = options.Kafka.BootstrapServers;
-                                setup.MessageTimeoutMs = 5000;
-                            },
+                            bootstrapServers: options.Kafka.BootstrapServers,
+                            topic: "healthcheck",
                             name: name,
                             failureStatus: HealthStatus.Degraded);
                     }
