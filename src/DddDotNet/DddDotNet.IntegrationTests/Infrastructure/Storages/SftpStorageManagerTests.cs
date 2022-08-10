@@ -1,5 +1,6 @@
 ﻿using DddDotNet.Infrastructure.Storages.Sftp;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
 using System.IO;
 using System.Text;
@@ -8,11 +9,11 @@ using Xunit;
 
 namespace DddDotNet.IntegrationTests.Infrastructure.Storages
 {
-    public class SfptStorageManagerTests
+    public class SftpStorageManagerTests
     {
         SftpOptions _options = new SftpOptions();
 
-        public SfptStorageManagerTests()
+        public SftpStorageManagerTests()
         {
             var config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
@@ -67,6 +68,14 @@ namespace DddDotNet.IntegrationTests.Infrastructure.Storages
             Assert.Equal("Test2", content2);
             Assert.Equal("Test2", content3);
             Assert.Equal("Test2", content4);
+        }
+
+        [Fact]
+        public async Task HealthCheck_Success()
+        {
+            var healthCheck = new SftpStorageHealthCheck(_options);
+            var checkResult = await healthCheck.CheckHealthAsync(null);
+            Assert.Equal(HealthStatus.Healthy, checkResult.Status);
         }
     }
 }
