@@ -1,5 +1,6 @@
 ﻿using DddDotNet.Infrastructure.HealthChecks;
 using DddDotNet.Infrastructure.MessageBrokers.AzureQueue;
+using DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus;
 using DddDotNet.Infrastructure.MessageBrokers.RabbitMQ;
 using DddDotNet.Infrastructure.Notification.Email.Smtp;
 using DddDotNet.Infrastructure.Notification.Web.SignalR;
@@ -92,6 +93,65 @@ namespace Microsoft.Extensions.DependencyInjection
                 new AzureQueueStorageHealthCheck(
                     connectionString: connectionString,
                     queueName: queueName),
+                failureStatus,
+                tags,
+                timeout));
+        }
+
+        public static IHealthChecksBuilder AddAzureServiceBusQueue(
+            this IHealthChecksBuilder builder,
+            string connectionString,
+            string queueName,
+            string name = default,
+            HealthStatus? failureStatus = default,
+            IEnumerable<string> tags = default,
+            TimeSpan? timeout = default)
+        {
+            return builder.Add(new HealthCheckRegistration(
+                name,
+                new AzureServiceBusQueueHealthCheck(
+                    connectionString: connectionString,
+                    queueName: queueName),
+                failureStatus,
+                tags,
+                timeout));
+        }
+
+        public static IHealthChecksBuilder AddAzureServiceBusTopic(
+            this IHealthChecksBuilder builder,
+            string connectionString,
+            string topicName,
+            string name = default,
+            HealthStatus? failureStatus = default,
+            IEnumerable<string> tags = default,
+            TimeSpan? timeout = default)
+        {
+            return builder.Add(new HealthCheckRegistration(
+                name,
+                new AzureServiceBusTopicHealthCheck(
+                    connectionString: connectionString,
+                    topicName: topicName),
+                failureStatus,
+                tags,
+                timeout));
+        }
+
+        public static IHealthChecksBuilder AddAzureServiceBusSubscription(
+            this IHealthChecksBuilder builder,
+            string connectionString,
+            string topicName,
+            string subscriptionName,
+            string name = default,
+            HealthStatus? failureStatus = default,
+            IEnumerable<string> tags = default,
+            TimeSpan? timeout = default)
+        {
+            return builder.Add(new HealthCheckRegistration(
+                name,
+                new AzureServiceBusSubscriptionHealthCheck(
+                    connectionString: connectionString,
+                    topicName: topicName,
+                    subscriptionName: subscriptionName),
                 failureStatus,
                 tags,
                 timeout));

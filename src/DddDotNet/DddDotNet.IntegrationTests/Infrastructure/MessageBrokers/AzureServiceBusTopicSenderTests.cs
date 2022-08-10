@@ -1,6 +1,8 @@
 ﻿using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -30,6 +32,48 @@ namespace DddDotNet.IntegrationTests.Infrastructure.MessageBrokers
                 var sender = new AzureServiceBusTopicSender<Message>(_connectionString, "topic-integration-test");
                 await sender.SendAsync(message, metaData);
             }
+        }
+
+        [Fact]
+        public async Task TopicHealthCheck_Healthy()
+        {
+            var healthCheck = new AzureServiceBusTopicHealthCheck(
+                connectionString: _connectionString,
+                topicName: "topic-integration-test");
+            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+            Assert.Equal(HealthStatus.Healthy, checkResult.Status);
+        }
+
+        [Fact]
+        public async Task TopicHealthCheck_Degraded()
+        {
+            var healthCheck = new AzureServiceBusTopicHealthCheck(
+                connectionString: _connectionString,
+                topicName: Guid.NewGuid().ToString());
+            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+            Assert.Equal(HealthStatus.Degraded, checkResult.Status);
+        }
+
+        [Fact]
+        public async Task SubscriptionHealthCheck_Healthy()
+        {
+            var healthCheck = new AzureServiceBusSubscriptionHealthCheck(
+                connectionString: _connectionString,
+                topicName: "topic-integration-test",
+                subscriptionName: "sub-integration-test");
+            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+            Assert.Equal(HealthStatus.Healthy, checkResult.Status);
+        }
+
+        [Fact]
+        public async Task SubscriptionHealthCheck_Degraded()
+        {
+            var healthCheck = new AzureServiceBusSubscriptionHealthCheck(
+                connectionString: _connectionString,
+                topicName: "topic-integration-test",
+                subscriptionName: Guid.NewGuid().ToString());
+            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+            Assert.Equal(HealthStatus.Degraded, checkResult.Status);
         }
     }
 }

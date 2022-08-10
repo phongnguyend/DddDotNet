@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus
 {
-    public class AzureServiceBusSender<T> : IMessageSender<T>
+    public class AzureServiceBusQueueSender<T> : IMessageSender<T>
     {
         private readonly string _connectionString;
         private readonly string _queueName;
 
-        public AzureServiceBusSender(string connectionString, string queueName)
+        public AzureServiceBusQueueSender(string connectionString, string queueName)
         {
             _connectionString = connectionString;
             _queueName = queueName;

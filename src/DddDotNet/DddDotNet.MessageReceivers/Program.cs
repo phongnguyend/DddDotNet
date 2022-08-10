@@ -74,10 +74,10 @@ namespace DddDotNet.MessageReceivers
                 Console.WriteLine($"AzureQueue: {message}");
             });
 
-            var azureServiceBus = new AzureServiceBusReceiver<Message>(
+            var azureServiceBusQueue = new AzureServiceBusQueueReceiver<Message>(
                 config["MessageBroker:AzureServiceBus:ConnectionString"],
                 "integration-test");
-            azureServiceBus.Receive((message, metaData) =>
+            azureServiceBusQueue.Receive((message, metaData) =>
             {
                 Console.WriteLine($"AzureServiceBus: {message}");
             });

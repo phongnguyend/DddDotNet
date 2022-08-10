@@ -57,17 +57,17 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection AddAzureServiceBusSender<T>(this IServiceCollection services, AzureServiceBusOptions options)
+        public static IServiceCollection AddAzureServiceBusQueueSender<T>(this IServiceCollection services, AzureServiceBusOptions options)
         {
-            services.AddSingleton<IMessageSender<T>>(new AzureServiceBusSender<T>(
+            services.AddSingleton<IMessageSender<T>>(new AzureServiceBusQueueSender<T>(
                                 options.ConnectionString,
                                 options.QueueNames[typeof(T).Name]));
             return services;
         }
 
-        public static IServiceCollection AddAzureServiceBusReceiver<T>(this IServiceCollection services, AzureServiceBusOptions options)
+        public static IServiceCollection AddAzureServiceBusQueueReceiver<T>(this IServiceCollection services, AzureServiceBusOptions options)
         {
-            services.AddTransient<IMessageReceiver<T>>(x => new AzureServiceBusReceiver<T>(
+            services.AddTransient<IMessageReceiver<T>>(x => new AzureServiceBusQueueReceiver<T>(
                                 options.ConnectionString,
                                 options.QueueNames[typeof(T).Name]));
             return services;
@@ -190,7 +190,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
             else if (options.UsedAzureServiceBus())
             {
-                services.AddAzureServiceBusSender<T>(options.AzureServiceBus);
+                services.AddAzureServiceBusQueueSender<T>(options.AzureServiceBus);
 
                 if (healthChecksBuilder != null)
                 {
@@ -238,7 +238,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
             else if (options.UsedAzureServiceBus())
             {
-                services.AddAzureServiceBusReceiver<T>(options.AzureServiceBus);
+                services.AddAzureServiceBusQueueReceiver<T>(options.AzureServiceBus);
             }
             else if (options.UsedAzureEventHub())
             {

@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus
 {
-    public class AzureServiceBusReceiver<T> : IMessageReceiver<T>
+    public class AzureServiceBusQueueReceiver<T> : IMessageReceiver<T>
     {
         private readonly string _connectionString;
         private readonly string _queueName;
 
-        public AzureServiceBusReceiver(string connectionString, string queueName)
+        public AzureServiceBusQueueReceiver(string connectionString, string queueName)
         {
             _connectionString = connectionString;
             _queueName = queueName;
