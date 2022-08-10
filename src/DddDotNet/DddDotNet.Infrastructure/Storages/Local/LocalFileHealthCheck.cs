@@ -26,7 +26,7 @@ namespace DddDotNet.Infrastructure.Storages.Local
 
                 File.Delete(testFile);
 
-                return Task.FromResult(HealthCheckResult.Healthy($"Application has read and write permissions to {_options.Path}"));
+                return Task.FromResult(HealthCheckResult.Healthy($"Path: {_options.Path}"));
             }
             catch (Exception ex)
             {

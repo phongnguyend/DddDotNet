@@ -7,6 +7,7 @@ using DddDotNet.Infrastructure.Notification.Email.Smtp;
 using DddDotNet.Infrastructure.Notification.Web.SignalR;
 using DddDotNet.Infrastructure.Storages.Amazon;
 using DddDotNet.Infrastructure.Storages.Azure;
+using DddDotNet.Infrastructure.Storages.Google;
 using DddDotNet.Infrastructure.Storages.Local;
 using DddDotNet.Infrastructure.Storages.Sftp;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -17,20 +18,6 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class HealthCheckBuilderExtensions
     {
-        public static IHealthChecksBuilder AddFilePathWrite(this IHealthChecksBuilder builder, string path, string name, HealthStatus failureStatus, IEnumerable<string> tags = default)
-        {
-            if (path == null)
-            {
-                throw new ArgumentNullException(nameof(path));
-            }
-
-            return builder.Add(new HealthCheckRegistration(
-                name,
-                new FilePathWriteHealthCheck(path),
-                failureStatus,
-                tags));
-        }
-
         public static IHealthChecksBuilder AddSqlServer(
             this IHealthChecksBuilder builder,
             string connectionString,
@@ -75,6 +62,22 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder.Add(new HealthCheckRegistration(
                 name,
                 new AzureBlobStorageHealthCheck(azureBlobOptions),
+                failureStatus,
+                tags,
+                timeout));
+        }
+
+        public static IHealthChecksBuilder AddGoogleCloudStorage(
+            this IHealthChecksBuilder builder,
+            GoogleCloudStorageOptions googleCloudOptions,
+            string name = default,
+            HealthStatus? failureStatus = default,
+            IEnumerable<string> tags = default,
+            TimeSpan? timeout = default)
+        {
+            return builder.Add(new HealthCheckRegistration(
+                name,
+                new GoogleCloudStorageHealthCheck(googleCloudOptions),
                 failureStatus,
                 tags,
                 timeout));

@@ -29,7 +29,7 @@ namespace DddDotNet.Infrastructure.MessageBrokers.RabbitMQ
                 using var connection = connectionFactory.CreateConnection();
                 using var model = connection.CreateModel();
 
-                return Task.FromResult(HealthCheckResult.Healthy());
+                return Task.FromResult(HealthCheckResult.Healthy($"HostName: {_options.HostName}"));
             }
             catch (Exception exception)
             {

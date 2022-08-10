@@ -28,7 +28,7 @@ namespace DddDotNet.Infrastructure.Storages.Amazon
                 var fileName = _options.Path + $"HealthCheck/{DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss")}-{Guid.NewGuid()}.txt";
                 var fileTransferUtility = new TransferUtility(_client);
 
-                using var stream = new MemoryStream(Encoding.UTF8.GetBytes($"HealthCheck{DateTime.Now}"));
+                using var stream = new MemoryStream(Encoding.UTF8.GetBytes($"HealthCheck {DateTime.Now}"));
                 var uploadRequest = new TransferUtilityUploadRequest
                 {
                     InputStream = stream,
@@ -40,7 +40,7 @@ namespace DddDotNet.Infrastructure.Storages.Amazon
                 await fileTransferUtility.UploadAsync(uploadRequest, cancellationToken);
                 await _client.DeleteObjectAsync(_options.BucketName, fileName, cancellationToken);
 
-                return HealthCheckResult.Healthy();
+                return HealthCheckResult.Healthy($"BucketName: {_options.BucketName}");
             }
             catch (Exception exception)
             {
