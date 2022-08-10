@@ -26,7 +26,7 @@ namespace DddDotNet.Infrastructure.Notification.Web.SignalR
         {
             if (_connection.State != HubConnectionState.Connected)
             {
-                _connection.StartAsync(cancellationToken).GetAwaiter().GetResult();
+                await _connection.StartAsync(cancellationToken);
             }
 
             await _connection.InvokeAsync(_eventName, message, cancellationToken);

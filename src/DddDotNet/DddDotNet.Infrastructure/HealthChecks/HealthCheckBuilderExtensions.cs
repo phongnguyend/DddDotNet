@@ -2,9 +2,11 @@
 using DddDotNet.Infrastructure.MessageBrokers.AzureQueue;
 using DddDotNet.Infrastructure.MessageBrokers.RabbitMQ;
 using DddDotNet.Infrastructure.Notification.Email.Smtp;
+using DddDotNet.Infrastructure.Notification.Web.SignalR;
 using DddDotNet.Infrastructure.Storages.Amazon;
 using DddDotNet.Infrastructure.Storages.Azure;
 using DddDotNet.Infrastructure.Storages.Local;
+using DddDotNet.Infrastructure.Storages.Sftp;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
 using System.Collections.Generic;
@@ -138,6 +140,43 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder.Add(new HealthCheckRegistration(
                 name,
                 new LocalFileHealthCheck(options),
+                failureStatus,
+                tags,
+                timeout));
+        }
+
+        public static IHealthChecksBuilder AddSftp(
+            this IHealthChecksBuilder builder,
+            SftpOptions options,
+            string name = default,
+            HealthStatus? failureStatus = default,
+            IEnumerable<string> tags = default,
+            TimeSpan? timeout = default)
+        {
+            return builder.Add(new HealthCheckRegistration(
+                name,
+                new SftpStorageHealthCheck(options),
+                failureStatus,
+                tags,
+                timeout));
+        }
+
+        public static IHealthChecksBuilder AddSignalR(
+            this IHealthChecksBuilder builder,
+            string endPoint,
+            string hubName,
+            string eventName,
+            string name = default,
+            HealthStatus? failureStatus = default,
+            IEnumerable<string> tags = default,
+            TimeSpan? timeout = default)
+        {
+            return builder.Add(new HealthCheckRegistration(
+                name,
+                new SignalRHealthCheck(
+                    endPoint: endPoint,
+                    hubName: hubName,
+                    eventName: eventName),
                 failureStatus,
                 tags,
                 timeout));
