@@ -1,6 +1,7 @@
 ﻿using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using DddDotNet.Infrastructure.MessageBrokers.AzureEventHub;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -30,6 +31,26 @@ namespace DddDotNet.IntegrationTests.Infrastructure.MessageBrokers
                 var sender = new AzureEventHubSender<Message>(_connectionString, "integration-test");
                 await sender.SendAsync(message, metaData);
             }
+        }
+
+        [Fact]
+        public async Task HealthCheck_Healthy()
+        {
+            var healthCheck = new AzureEventHubHealthCheck(
+                connectionString: _connectionString,
+                hubName: "integration-test");
+            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+            Assert.Equal(HealthStatus.Healthy, checkResult.Status);
+        }
+
+        [Fact]
+        public async Task HealthCheck_Degraded()
+        {
+            var healthCheck = new AzureEventHubHealthCheck(
+                connectionString: _connectionString,
+                hubName: "integration-test-not-exist");
+            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+            Assert.Equal(HealthStatus.Degraded, checkResult.Status);
         }
     }
 }
