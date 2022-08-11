@@ -39,4 +39,4 @@
   | ---- | :----: | :----------: | ---- |
   | Amazon SNS | ✅ | | [/Notification/Sms/Amazon](/src/DddDotNet/DddDotNet.Infrastructure/Notification/Sms/Amazon) |
   | Azure Communication | ✅ | | [/Notification/Sms/Azure](/src/DddDotNet/DddDotNet.Infrastructure/Notification/Sms/Azure) |
-  | Twilio | ✅ | | [/Notification/Sms/Twilio](/src/DddDotNet/DddDotNet.Infrastructure/Notification/Sms/Twilio) |
+  | Twilio | ✅ | ✅ | [/Notification/Sms/Twilio](/src/DddDotNet/DddDotNet.Infrastructure/Notification/Sms/Twilio) |

@@ -24,7 +24,7 @@ namespace DddDotNet.Infrastructure.Notification.Sms.Twilio
                 from: new PhoneNumber(_options.FromNumber),
                 to: new PhoneNumber(smsMessage.PhoneNumber));
 
-            if (!string.IsNullOrWhiteSpace(message.Sid))
+            if (!string.IsNullOrWhiteSpace(message?.Sid))
             {
             }
         }
