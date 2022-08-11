@@ -31,7 +31,7 @@
   | Email  | Status | Health Check | Path |
   | ------ | :----: | :----------: | ---- |
   | Amazon SES | ✅ | | [/Notification/Email/Amazon](/src/DddDotNet/DddDotNet.Infrastructure/Notification/Email/Amazon) |
-  | SendGrid | ✅ | | [/Notification/Email/SendGrid](/src/DddDotNet/DddDotNet.Infrastructure/Notification/Email/SendGrid) |
+  | SendGrid | ✅ | ✅ | [/Notification/Email/SendGrid](/src/DddDotNet/DddDotNet.Infrastructure/Notification/Email/SendGrid) |
   | SMTP | ✅ | ✅ | [/Notification/Email/Smtp](/src/DddDotNet/DddDotNet.Infrastructure/Notification/Email/Smtp) |
 
 ## SMS Providers

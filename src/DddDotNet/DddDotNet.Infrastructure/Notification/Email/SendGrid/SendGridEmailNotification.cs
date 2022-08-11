@@ -1,6 +1,8 @@
 ﻿using SendGrid;
 using SendGrid.Helpers.Mail;
+using System;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,7 +28,13 @@ namespace DddDotNet.Infrastructure.Notification.Email.SendGrid
                 .ToList();
 
             var msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, tos, emailMessage.Subject, string.Empty, emailMessage.Body, showAllRecipients: true);
+
             var response = await client.SendEmailAsync(msg, cancellationToken);
+
+            if (response.StatusCode != HttpStatusCode.Accepted)
+            {
+                throw new Exception(response.StatusCode.ToString());
+            }
         }
     }
 }
