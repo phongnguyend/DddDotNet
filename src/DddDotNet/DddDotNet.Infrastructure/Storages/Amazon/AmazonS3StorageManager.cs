@@ -2,6 +2,7 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,7 +37,17 @@ namespace DddDotNet.Infrastructure.Storages.Amazon
                 CannedACL = S3CannedACL.NoACL,
             };
 
+            var clientRequestedTime = DateTimeOffset.Now.ToString();
+            uploadRequest.Metadata["client-requested-time"] = clientRequestedTime;
+
             await fileTransferUtility.UploadAsync(uploadRequest, cancellationToken);
+
+            var metadataResponse = await _client.GetObjectMetadataAsync(_options.BucketName, uploadRequest.Key, cancellationToken);
+            var checkClientRequestedTime = metadataResponse?.Metadata["client-requested-time"];
+            if (checkClientRequestedTime != clientRequestedTime)
+            {
+                throw new Exception("Invalid Data");
+            }
         }
 
         public async Task DeleteAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)

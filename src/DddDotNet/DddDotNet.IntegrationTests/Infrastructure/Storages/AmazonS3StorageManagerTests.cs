@@ -72,11 +72,20 @@ namespace DddDotNet.IntegrationTests.Infrastructure.Storages
         }
 
         [Fact]
-        public async Task HealthCheck_Success()
+        public async Task HealthCheck_Healthy()
         {
             var healthCheck = new AmazonS3HealthCheck(_options);
             var checkResult = await healthCheck.CheckHealthAsync(null);
             Assert.Equal(HealthStatus.Healthy, checkResult.Status);
+        }
+
+        [Fact]
+        public async Task HealthCheck_Degraded()
+        {
+            _options.BucketName = "fsfsafafsfsfsfsfs";
+            var healthCheck = new AmazonS3HealthCheck(_options);
+            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+            Assert.Equal(HealthStatus.Degraded, checkResult.Status);
         }
     }
 
