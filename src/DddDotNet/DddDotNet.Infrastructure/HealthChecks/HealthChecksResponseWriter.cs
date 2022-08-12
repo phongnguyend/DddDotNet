@@ -20,7 +20,8 @@ namespace DddDotNet.Infrastructure.HealthChecks
             {
                 jsonWriter.WriteStartObject();
                 jsonWriter.WriteString("status", healthReport.Status.ToString());
-                if (context.Request.Query["accessKey"] == accessKey)
+
+                if (!string.IsNullOrWhiteSpace(accessKey) && context.Request.Query["accessKey"] == accessKey)
                 {
                     jsonWriter.WriteStartObject("results");
 
@@ -45,6 +46,7 @@ namespace DddDotNet.Infrastructure.HealthChecks
 
                     jsonWriter.WriteEndObject();
                 }
+
                 jsonWriter.WriteEndObject();
             }
 
