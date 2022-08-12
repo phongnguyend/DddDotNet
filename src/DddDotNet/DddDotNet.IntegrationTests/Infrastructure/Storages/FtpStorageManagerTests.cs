@@ -1,5 +1,6 @@
 ﻿using DddDotNet.Infrastructure.Storages.Ftp;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
 using System.IO;
 using System.Text;
@@ -8,11 +9,11 @@ using Xunit;
 
 namespace DddDotNet.IntegrationTests.Infrastructure.Storages
 {
-    public class FptStorageManagerTests
+    public class FtpStorageManagerTests
     {
         FtpOptions _options = new FtpOptions();
 
-        public FptStorageManagerTests()
+        public FtpStorageManagerTests()
         {
             var config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
@@ -67,6 +68,23 @@ namespace DddDotNet.IntegrationTests.Infrastructure.Storages
             Assert.Equal("Test2", content2);
             Assert.Equal("Test2", content3);
             Assert.Equal("Test2", content4);
+        }
+
+        [Fact]
+        public async Task HealthCheck_Healthy()
+        {
+            var healthCheck = new FtpHealthCheck(_options);
+            var checkResult = await healthCheck.CheckHealthAsync(null);
+            Assert.Equal(HealthStatus.Healthy, checkResult.Status);
+        }
+
+        [Fact]
+        public async Task HealthCheck_Degraded()
+        {
+            _options.Password += "fsfsafafsfsfsfsfs";
+            var healthCheck = new FtpHealthCheck(_options);
+            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+            Assert.Equal(HealthStatus.Degraded, checkResult.Status);
         }
     }
 }

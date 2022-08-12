@@ -4,7 +4,7 @@
   | Amazon S3 | ✅ | ✅ | [/Storages/Amazon](/src/DddDotNet/DddDotNet.Infrastructure/Storages/Amazon) |
   | Azure Blob Storage| ✅ | ✅ | [/Storages/Azure](/src/DddDotNet/DddDotNet.Infrastructure/Storages/Azure) |
   | Azure File Share | ✅ | | [/Storages/Azure](/src/DddDotNet/DddDotNet.Infrastructure/Storages/Azure) |
-  | FTP / FTPS | ✅ | | [/Storages/Ftp](/src/DddDotNet/DddDotNet.Infrastructure/Storages/Ftp) |
+  | FTP / FTPS | ✅ | ✅ | [/Storages/Ftp](/src/DddDotNet/DddDotNet.Infrastructure/Storages/Ftp) |
   | Google Cloud Storage | ✅ | ✅ | [/Storages/Google](/src/DddDotNet/DddDotNet.Infrastructure/Storages/Google) |
   | Local | ✅ | ✅ | [/Storages/Local](/src/DddDotNet/DddDotNet.Infrastructure/Storages/Local) |
   | SFTP | ✅ | ✅ | [/Storages/Sftp](/src/DddDotNet/DddDotNet.Infrastructure/Storages/Sftp) |
