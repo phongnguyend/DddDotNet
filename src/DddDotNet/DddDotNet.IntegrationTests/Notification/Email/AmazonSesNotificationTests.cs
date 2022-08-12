@@ -1,5 +1,6 @@
 ﻿using DddDotNet.Infrastructure.Notification.Email.Amazon;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -8,6 +9,7 @@ namespace DddDotNet.IntegrationTests.Notification.Email
     public class AmazonSesNotificationTests
     {
         private AmazonSesOptions _options;
+        private AmazonSesHealthCheckOptions _healthCheckOptions;
 
         public AmazonSesNotificationTests()
         {
@@ -18,7 +20,14 @@ namespace DddDotNet.IntegrationTests.Notification.Email
 
             _options = new AmazonSesOptions();
 
+            _healthCheckOptions = new AmazonSesHealthCheckOptions
+            {
+                Subject = "Health Check",
+                Body = "Health Check",
+            };
+
             config.GetSection("Notification:Email:AmazonSES").Bind(_options);
+            config.GetSection("Notification:Email:AmazonSES").Bind(_healthCheckOptions);
         }
 
         [Fact]
@@ -51,6 +60,23 @@ namespace DddDotNet.IntegrationTests.Notification.Email
                 Subject = "IntegrationTests 3",
                 Body = "IntegrationTests 3",
             });
+        }
+
+        [Fact]
+        public async Task HealthCheck_Healthy()
+        {
+            var healthCheck = new AmazonSesHealthCheck(_healthCheckOptions);
+            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+            Assert.Equal(HealthStatus.Healthy, checkResult.Status);
+        }
+
+        [Fact]
+        public async Task HealthCheck_Degraded()
+        {
+            _healthCheckOptions.FromEmail = "abc@gmail.com";
+            var healthCheck = new AmazonSesHealthCheck(_healthCheckOptions);
+            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+            Assert.Equal(HealthStatus.Degraded, checkResult.Status);
         }
     }
 }

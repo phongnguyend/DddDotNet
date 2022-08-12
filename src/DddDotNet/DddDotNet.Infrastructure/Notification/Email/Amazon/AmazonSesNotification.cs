@@ -2,6 +2,7 @@
 using Amazon.SimpleEmail;
 using Amazon.SimpleEmail.Model;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -47,6 +48,15 @@ namespace DddDotNet.Infrastructure.Notification.Email.Amazon
             };
 
             var sendEmailResponse = await client.SendEmailAsync(sendRequest);
+
+            if (sendEmailResponse?.HttpStatusCode == HttpStatusCode.OK && !string.IsNullOrWhiteSpace(sendEmailResponse?.MessageId))
+            {
+                // Succeeded
+            }
+            else
+            {
+                // Failed
+            }
         }
     }
 }
