@@ -14,7 +14,7 @@
 ## Message Broker Providers
   | Message Broker  | Status | Health Check | Path |
   | --------------- | :----: | :----------: | ---- |
-  | Amazon Event Bridge | ✅ | | [/MessageBrokers/AmazonEventBridge](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/AmazonEventBridge) |
+  | Amazon Event Bridge | ✅ | ✅ | [/MessageBrokers/AmazonEventBridge](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/AmazonEventBridge) |
   | Amazon Kinesis | ✅ | ✅ | [/MessageBrokers/AmazonKinesis](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/AmazonKinesis) |
   | Amazon SNS | ✅ | ✅ | [/MessageBrokers/AmazonSNS](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/AmazonSNS) |
   | Amazon SQS | ✅ | ✅ | [/MessageBrokers/AmazonSQS](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/AmazonSQS) |

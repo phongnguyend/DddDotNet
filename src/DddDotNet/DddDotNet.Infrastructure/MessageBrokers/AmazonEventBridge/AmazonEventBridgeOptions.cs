@@ -8,6 +8,8 @@
 
         public string EndpointId { get; set; }
 
+        public string EndpointName { get; set; }
+
         public string RegionEndpoint { get; set; }
     }
 }

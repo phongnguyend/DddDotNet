@@ -19,9 +19,9 @@ namespace DddDotNet.Infrastructure.MessageBrokers.AmazonEventBridge
 
         public async Task SendAsync(T message, MetaData metaData = null, CancellationToken cancellationToken = default)
         {
-            var snsClient = new AmazonEventBridgeClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
+            var eventBridgeClient = new AmazonEventBridgeClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
 
-            var putEventsReponse = await snsClient.PutEventsAsync(new PutEventsRequest
+            var putEventsReponse = await eventBridgeClient.PutEventsAsync(new PutEventsRequest
             {
                 EndpointId = _options.EndpointId,
                 Entries = new List<PutEventsRequestEntry>

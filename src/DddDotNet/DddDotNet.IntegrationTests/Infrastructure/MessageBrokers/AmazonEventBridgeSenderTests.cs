@@ -1,6 +1,7 @@
 ﻿using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using DddDotNet.Infrastructure.MessageBrokers.AmazonEventBridge;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -32,6 +33,24 @@ namespace DddDotNet.IntegrationTests.Infrastructure.MessageBrokers
                 var sender = new AmazonEventBridgeSender<Message>(_options);
                 await sender.SendAsync(message, metaData);
             }
+        }
+
+        [Fact]
+        public async Task HealthCheck_Healthy()
+        {
+            _options.EndpointName = "ddddotnet";
+            var healthCheck = new AmazonEventBridgeHealthCheck(_options);
+            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+            Assert.Equal(HealthStatus.Healthy, checkResult.Status);
+        }
+
+        [Fact]
+        public async Task HealthCheck_Degraded()
+        {
+            _options.EndpointName = "xxx";
+            var healthCheck = new AmazonEventBridgeHealthCheck(_options);
+            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+            Assert.Equal(HealthStatus.Degraded, checkResult.Status);
         }
     }
 }
