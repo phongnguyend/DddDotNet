@@ -1,19 +1,18 @@
 ﻿using Amazon;
-using Amazon.SQS;
+using Amazon.SimpleNotificationService;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.MessageBrokers.AmazonSQS
+namespace DddDotNet.Infrastructure.MessageBrokers.AmazonSNS
 {
-    public class AmazonSqsHealthCheck : IHealthCheck
+    public class AmazonSnsHealthCheck : IHealthCheck
     {
-        private readonly AmazonSqsOptions _options;
+        private readonly AmazonSnsOptions _options;
 
-        public AmazonSqsHealthCheck(AmazonSqsOptions options)
+        public AmazonSnsHealthCheck(AmazonSnsOptions options)
         {
             _options = options;
         }
@@ -22,11 +21,12 @@ namespace DddDotNet.Infrastructure.MessageBrokers.AmazonSQS
         {
             try
             {
-                var sqsClient = new AmazonSQSClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
-                var attributes = await sqsClient.GetQueueAttributesAsync(_options.QueueUrl, new List<string> { "All" }, cancellationToken);
-
+                var snsClient = new AmazonSimpleNotificationServiceClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
+                var attributes = await snsClient.GetTopicAttributesAsync(_options.TopicARN, cancellationToken);
                 if (attributes?.HttpStatusCode == HttpStatusCode.OK)
                 {
+                    var subscriptions = await snsClient.ListSubscriptionsByTopicAsync(_options.TopicARN, cancellationToken);
+
                     return HealthCheckResult.Healthy();
                 }
                 else

@@ -16,7 +16,7 @@
   | --------------- | :----: | :----------: | ---- |
   | Amazon Event Bridge | ✅ | | [/MessageBrokers/AmazonEventBridge](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/AmazonEventBridge) |
   | Amazon Kinesis | ✅ | | [/MessageBrokers/AmazonKinesis](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/AmazonKinesis) |
-  | Amazon SNS | ✅ | | [/MessageBrokers/AmazonSNS](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/AmazonSNS) |
+  | Amazon SNS | ✅ | ✅ | [/MessageBrokers/AmazonSNS](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/AmazonSNS) |
   | Amazon SQS | ✅ | ✅ | [/MessageBrokers/AmazonSQS](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/AmazonSQS) |
   | Apache ActiveMQ | ✅ | | [/MessageBrokers/ApacheActiveMQ](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/ApacheActiveMQ) |
   | Azure Event Grid | ✅ | | [/MessageBrokers/AzureEventGrid](/src/DddDotNet/DddDotNet.Infrastructure/MessageBrokers/AzureEventGrid) |
