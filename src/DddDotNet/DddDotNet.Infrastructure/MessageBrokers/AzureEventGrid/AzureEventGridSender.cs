@@ -23,7 +23,6 @@ namespace DddDotNet.Infrastructure.MessageBrokers.AzureEventGrid
 
         public async Task SendAsync(T message, MetaData metaData, CancellationToken cancellationToken = default)
         {
-
             EventGridPublisherClient client = new EventGridPublisherClient(new Uri(_domainEndpoint), new AzureKeyCredential(_domainKey));
 
             var data = new BinaryData(new Message<T>

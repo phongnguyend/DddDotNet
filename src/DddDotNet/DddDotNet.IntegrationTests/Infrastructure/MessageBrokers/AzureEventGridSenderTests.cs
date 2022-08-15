@@ -1,6 +1,7 @@
 ﻿using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using DddDotNet.Infrastructure.MessageBrokers.AzureEventGrid;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -10,6 +11,7 @@ namespace DddDotNet.IntegrationTests.Infrastructure.MessageBrokers
     {
         private static string _domainEndpoint;
         private static string _domainKey;
+        AzureEventGridHealthCheckOptions _healthCheckOptions;
 
         public AzureEventGridSenderTests()
         {
@@ -20,6 +22,13 @@ namespace DddDotNet.IntegrationTests.Infrastructure.MessageBrokers
 
             _domainEndpoint = config["MessageBroker:AzureEventGrid:DomainEndpoint"];
             _domainKey = config["MessageBroker:AzureEventGrid:DomainKey"];
+
+            _healthCheckOptions = new AzureEventGridHealthCheckOptions
+            {
+                DomainEndpoint = _domainEndpoint,
+            };
+
+            config.GetSection("MessageBroker:AzureEventGrid:HealthCheck").Bind(_healthCheckOptions);
         }
 
         [Fact]
@@ -32,6 +41,23 @@ namespace DddDotNet.IntegrationTests.Infrastructure.MessageBrokers
                 var sender = new AzureEventGridSender<Message>(_domainEndpoint, _domainKey, "integration-test");
                 await sender.SendAsync(message, metaData);
             }
+        }
+
+        [Fact]
+        public async Task HealthCheck_Healthy()
+        {
+            var healthCheck = new AzureEventGridHealthCheck(_healthCheckOptions);
+            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+            Assert.Equal(HealthStatus.Healthy, checkResult.Status);
+        }
+
+        [Fact]
+        public async Task HealthCheck_Degraded()
+        {
+            _healthCheckOptions.DomainName += "abc";
+            var healthCheck = new AzureEventGridHealthCheck(_healthCheckOptions);
+            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+            Assert.Equal(HealthStatus.Degraded, checkResult.Status);
         }
     }
 }
