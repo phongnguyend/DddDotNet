@@ -58,6 +58,7 @@
     <PackageReference Include="Google.Cloud.Storage.V1" Version="4.1.0" />
     <PackageReference Include="Google.Protobuf" Version="3.21.4" />
     <PackageReference Include="Grpc.Net.Client" Version="2.47.0" />
+	<PackageReference Include="HtmlSanitizer" Version="7.1.542" />
     <PackageReference Include="IdentityModel" Version="4.4.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.16.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.0" />
