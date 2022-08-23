@@ -21,13 +21,18 @@ namespace DddDotNet.Infrastructure.HealthChecks
             try
             {
                 var response = await _httpClient.GetAsync(_uri);
-                response.EnsureSuccessStatusCode();
-
-                return HealthCheckResult.Healthy(await response.Content.ReadAsStringAsync());
+                if (response.IsSuccessStatusCode)
+                {
+                    return HealthCheckResult.Healthy($"Uri: '{_uri}', StatusCode: '{response.StatusCode}'");
+                }
+                else
+                {
+                    return new HealthCheckResult(context.Registration.FailureStatus, $"Uri: '{_uri}', StatusCode: '{response.StatusCode}'");
+                }
             }
             catch (Exception exception)
             {
-                return new HealthCheckResult(context.Registration.FailureStatus, null, exception);
+                return new HealthCheckResult(context.Registration.FailureStatus, $"Uri: '{_uri}', Exception: '{exception.Message}'", exception);
             }
         }
     }
