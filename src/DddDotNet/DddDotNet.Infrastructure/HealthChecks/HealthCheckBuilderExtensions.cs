@@ -18,6 +18,22 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class HealthCheckBuilderExtensions
     {
+        public static IHealthChecksBuilder AddHttp(
+            this IHealthChecksBuilder builder,
+            string uri,
+            string name = default,
+            HealthStatus? failureStatus = default,
+            IEnumerable<string> tags = default,
+            TimeSpan? timeout = default)
+        {
+            return builder.Add(new HealthCheckRegistration(
+                name,
+                new HttpHealthCheck(uri),
+                failureStatus,
+                tags,
+                timeout));
+        }
+
         public static IHealthChecksBuilder AddSqlServer(
             this IHealthChecksBuilder builder,
             string connectionString,
