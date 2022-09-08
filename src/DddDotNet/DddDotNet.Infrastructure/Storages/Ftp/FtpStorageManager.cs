@@ -23,17 +23,20 @@ namespace DddDotNet.Infrastructure.Storages.Ftp
         public async Task CreateAsync(IFileEntry fileEntry, Stream stream, CancellationToken cancellationToken = default)
         {
             using var ftp = GetFtpClient();
-            await ftp.ConnectAsync(cancellationToken);
-            await ftp.UploadAsync(stream, GetRemoteFilePath(fileEntry), FtpRemoteExists.Overwrite, true, token: cancellationToken);
+            await ftp.Connect(cancellationToken);
+            await ftp.UploadStream(stream, GetRemoteFilePath(fileEntry), FtpRemoteExists.Overwrite, true, token: cancellationToken);
         }
 
-        private FtpClient GetFtpClient()
+        private AsyncFtpClient GetFtpClient()
         {
-            var ftpClient = new FtpClient(_options.Host, _options.UserName, _options.Password)
+            var ftpClient = new AsyncFtpClient(_options.Host, _options.UserName, _options.Password)
             {
-                EncryptionMode = FtpEncryptionMode.Implicit,
+                Config = new FtpConfig
+                {
+                    EncryptionMode = FtpEncryptionMode.Implicit,
 
-                // ValidateAnyCertificate = true,
+                    // ValidateAnyCertificate = true,
+                },
             };
             return ftpClient;
         }
@@ -46,8 +49,8 @@ namespace DddDotNet.Infrastructure.Storages.Ftp
         public async Task DeleteAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
         {
             using var ftp = GetFtpClient();
-            await ftp.ConnectAsync(cancellationToken);
-            await ftp.DeleteFileAsync(GetRemoteFilePath(fileEntry), cancellationToken);
+            await ftp.Connect(cancellationToken);
+            await ftp.DeleteFile(GetRemoteFilePath(fileEntry), cancellationToken);
         }
 
         public void Dispose()
@@ -70,8 +73,8 @@ namespace DddDotNet.Infrastructure.Storages.Ftp
         public async Task DownloadAsync(IFileEntry fileEntry, Stream stream, CancellationToken cancellationToken = default)
         {
             using var ftp = GetFtpClient();
-            await ftp.ConnectAsync(cancellationToken);
-            using var fStream = await ftp.OpenReadAsync(GetRemoteFilePath(fileEntry), cancellationToken);
+            await ftp.Connect(cancellationToken);
+            using var fStream = await ftp.OpenRead(GetRemoteFilePath(fileEntry), token: cancellationToken);
             try
             {
                 await fStream.CopyToAsync(stream, cancellationToken);

@@ -21,7 +21,6 @@ namespace DddDotNet.Infrastructure.DistributedTracing
                         .SetSampler(new AlwaysOnSampler())
                         .AddZipkinExporter(zipkinOptions =>
                         {
-                            zipkinOptions.ServiceName = options.Zipkin.ServiceName;
                             zipkinOptions.Endpoint = new Uri(options.Zipkin.Endpoint);
                         }));
             }
@@ -47,7 +46,7 @@ namespace DddDotNet.Infrastructure.DistributedTracing
                         .SetSampler(new AlwaysOnSampler())
                         .AddOtlpExporter(otlpOptions =>
                         {
-                            otlpOptions.Endpoint = options.Otlp.Endpoint;
+                            otlpOptions.Endpoint = new Uri(options.Otlp.Endpoint);
                         }));
             }
 

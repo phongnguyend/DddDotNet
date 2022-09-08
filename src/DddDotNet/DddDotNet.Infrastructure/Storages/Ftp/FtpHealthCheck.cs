@@ -36,17 +36,20 @@ namespace DddDotNet.Infrastructure.Storages.Ftp
         private async Task CreateAsync(string fileName, Stream stream, CancellationToken cancellationToken = default)
         {
             using var ftp = GetFtpClient();
-            await ftp.ConnectAsync(cancellationToken);
-            await ftp.UploadAsync(stream, GetRemoteFilePath(fileName), FtpRemoteExists.Overwrite, true, token: cancellationToken);
+            await ftp.Connect(cancellationToken);
+            await ftp.UploadStream(stream, GetRemoteFilePath(fileName), FtpRemoteExists.Overwrite, true, token: cancellationToken);
         }
 
-        private FtpClient GetFtpClient()
+        private AsyncFtpClient GetFtpClient()
         {
-            var ftpClient = new FtpClient(_options.Host, _options.UserName, _options.Password)
+            var ftpClient = new AsyncFtpClient(_options.Host, _options.UserName, _options.Password)
             {
-                EncryptionMode = FtpEncryptionMode.Implicit,
+                Config = new FtpConfig
+                {
+                    EncryptionMode = FtpEncryptionMode.Implicit,
 
-                // ValidateAnyCertificate = true,
+                    // ValidateAnyCertificate = true,
+                },
             };
             return ftpClient;
         }
@@ -59,8 +62,8 @@ namespace DddDotNet.Infrastructure.Storages.Ftp
         public async Task DeleteAsync(string fileName, CancellationToken cancellationToken = default)
         {
             using var ftp = GetFtpClient();
-            await ftp.ConnectAsync(cancellationToken);
-            await ftp.DeleteFileAsync(GetRemoteFilePath(fileName), cancellationToken);
+            await ftp.Connect(cancellationToken);
+            await ftp.DeleteFile(GetRemoteFilePath(fileName), cancellationToken);
         }
     }
 }
