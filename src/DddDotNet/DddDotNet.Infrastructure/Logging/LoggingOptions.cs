@@ -11,5 +11,7 @@ namespace DddDotNet.Infrastructure.Logging
         public ElasticsearchOptions Elasticsearch { get; set; }
 
         public EventLogOptions EventLog { get; set; }
+
+        public ApplicationInsightsOptions ApplicationInsights { get; set; }
     }
 }
