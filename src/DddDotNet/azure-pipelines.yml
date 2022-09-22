@@ -21,11 +21,11 @@ stages:
     pool:
       vmImage: ubuntu-latest
     steps:
-      - task: UseDotNet@2
-        displayName: Use .Net 5.0.200
-        inputs:
-          packageType: 'sdk'
-          version: '5.0.200'
+#      - task: UseDotNet@2
+#        displayName: Use .Net 5.0.200
+#        inputs:
+#          packageType: 'sdk'
+#          version: '5.0.200'
       - task: DotNetCoreCLI@2
         displayName: dotnet restore
         inputs:
@@ -48,15 +48,14 @@ stages:
       - task: DotNetCoreCLI@2
         displayName: dotnet pack
         inputs:
-          command: 'pack'
-          packagesToPack: '**/*.csproj'
-          configuration: 'Release'
-          includesource: true
-          versioningScheme: 'off'
+          command: 'custom'
+          projects: '**/*.csproj'
+          custom: 'pack'
+          arguments: '--configuration Release -p:PackageVersion=1.0.0-$(Build.BuildNumber) --output $(Build.ArtifactStagingDirectory)'
       - task: DotNetCoreCLI@2
         displayName: dotnet nuget push
         inputs:
           command: 'push'
           packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
           nuGetFeedType: 'internal'
-          publishVstsFeed: '265b1254-5187-4feb-89ae-5e6ed97d7e5f/ec457b80-be2b-4b79-9259-bdae7dd848d5'
+          publishVstsFeed: '649b11e9-9f40-41ae-bf73-6d93e3161e2c/24cbed38-cd60-4d56-bad6-7c5d18f75a60'
