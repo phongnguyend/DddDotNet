@@ -2,9 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
-
     <UserSecretsId>09f024f8-e8d1-4b78-9ddd-da941692e8fa</UserSecretsId>
   </PropertyGroup>
 
