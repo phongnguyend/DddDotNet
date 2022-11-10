@@ -12,7 +12,7 @@ namespace DddDotNet.Infrastructure.Configuration
         {
             if (options?.SqlServer?.IsEnabled ?? false)
             {
-                configurationBuilder.AddSqlConfigurationVariables(options.SqlServer);
+                configurationBuilder.AddSqlServer(options.SqlServer);
             }
 
             if (options?.AzureAppConfiguration?.IsEnabled ?? false)
@@ -24,6 +24,11 @@ namespace DddDotNet.Infrastructure.Configuration
             {
                 var secretClient = new SecretClient(new Uri(options.AzureKeyVault.VaultName), new DefaultAzureCredential());
                 configurationBuilder.AddAzureKeyVault(secretClient, new KeyVaultSecretManager());
+            }
+
+            if (options?.HashiCorpVault?.IsEnabled ?? false)
+            {
+                configurationBuilder.AddHashiCorpVault(options.HashiCorpVault);
             }
 
             return configurationBuilder;
