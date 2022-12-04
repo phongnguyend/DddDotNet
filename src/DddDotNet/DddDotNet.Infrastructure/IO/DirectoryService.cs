@@ -45,5 +45,10 @@ namespace DddDotNet.Infrastructure.IO
         {
             return Directory.GetFiles(path);
         }
+
+        public DateTime GetCreationTime(string path)
+        {
+            return Directory.GetCreationTime(path);
+        }
     }
 }

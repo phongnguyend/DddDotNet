@@ -1,4 +1,5 @@
 ﻿using DddDotNet.CrossCuttingConcerns.IO;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -122,6 +123,12 @@ namespace DddDotNet.Infrastructure.IO
         public string ReadAllText(string path)
         {
             return File.ReadAllText(path);
+        }
+
+        public DateTime GetCreationTime(string path)
+        {
+            FileInfo fi = new FileInfo(path);
+            return fi.CreationTime;
         }
     }
 }

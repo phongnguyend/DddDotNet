@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace DddDotNet.CrossCuttingConcerns.IO
@@ -18,5 +19,7 @@ namespace DddDotNet.CrossCuttingConcerns.IO
         string[] GetFiles(string path);
 
         string GetTempFolder(string root);
+
+        DateTime GetCreationTime(string path);
     }
 }

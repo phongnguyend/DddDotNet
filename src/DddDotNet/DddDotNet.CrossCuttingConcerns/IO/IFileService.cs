@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace DddDotNet.CrossCuttingConcerns.IO
@@ -44,5 +45,7 @@ namespace DddDotNet.CrossCuttingConcerns.IO
         void WriteAllBytes(string path, byte[] byteArray);
 
         string ReadAllText(string path);
+
+        DateTime GetCreationTime(string path);
     }
 }
