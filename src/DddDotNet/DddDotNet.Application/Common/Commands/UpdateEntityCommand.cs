@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace DddDotNet.Application
 {
     public class UpdateEntityCommand<TEntity> : ICommand
-        where TEntity : AggregateRoot<Guid>
+        where TEntity : Entity<Guid>, IAggregateRoot
     {
         public UpdateEntityCommand(TEntity entity)
         {
@@ -17,7 +17,7 @@ namespace DddDotNet.Application
     }
 
     internal class UpdateEntityCommandHandler<TEntity> : ICommandHandler<UpdateEntityCommand<TEntity>>
-    where TEntity : AggregateRoot<Guid>
+    where TEntity : Entity<Guid>, IAggregateRoot
     {
         private readonly ICrudService<TEntity> _crudService;
 
