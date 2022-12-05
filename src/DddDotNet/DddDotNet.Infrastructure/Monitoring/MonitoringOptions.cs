@@ -1,5 +1,4 @@
-﻿using DddDotNet.Infrastructure.Monitoring.AppMetrics;
-using DddDotNet.Infrastructure.Monitoring.AzureApplicationInsights;
+﻿using DddDotNet.Infrastructure.Monitoring.AzureApplicationInsights;
 using DddDotNet.Infrastructure.Monitoring.MiniProfiler;
 
 namespace DddDotNet.Infrastructure.Monitoring
@@ -9,7 +8,5 @@ namespace DddDotNet.Infrastructure.Monitoring
         public MiniProfilerOptions MiniProfiler { get; set; }
 
         public AzureApplicationInsightsOptions AzureApplicationInsights { get; set; }
-
-        public AppMetricsOptions AppMetrics { get; set; }
     }
 }

@@ -20,10 +20,6 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Apache.NMS.ActiveMQ" Version="2.0.0" />
-    <PackageReference Include="App.Metrics" Version="4.3.0" />
-    <PackageReference Include="App.Metrics.AspNetCore.Mvc" Version="4.3.0" />
-    <PackageReference Include="App.Metrics.AspNetCore.Tracking" Version="4.3.0" />
-    <PackageReference Include="App.Metrics.Formatters.Prometheus" Version="4.3.0" />
     <PackageReference Include="AWSSDK.EventBridge" Version="3.7.5.55" />
     <PackageReference Include="AWSSDK.Extensions.CrtIntegration" Version="3.7.1.4" />
     <PackageReference Include="AWSSDK.Kinesis" Version="3.7.1.97" />

@@ -1,8 +1,6 @@
-﻿using DddDotNet.Infrastructure.Monitoring.AppMetrics;
-using DddDotNet.Infrastructure.Monitoring.AzureApplicationInsights;
+﻿using DddDotNet.Infrastructure.Monitoring.AzureApplicationInsights;
 using DddDotNet.Infrastructure.Monitoring.MiniProfiler;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DddDotNet.Infrastructure.Monitoring
@@ -21,22 +19,7 @@ namespace DddDotNet.Infrastructure.Monitoring
                 services.AddAzureApplicationInsights(monitoringOptions.AzureApplicationInsights);
             }
 
-            if (monitoringOptions?.AppMetrics?.IsEnabled ?? false)
-            {
-                services.AddAppMetrics(monitoringOptions.AppMetrics);
-            }
-
             return services;
-        }
-
-        public static IMvcBuilder AddMonitoringServices(this IMvcBuilder mvcBuilder, MonitoringOptions monitoringOptions)
-        {
-            if (monitoringOptions?.AppMetrics?.IsEnabled ?? false)
-            {
-                mvcBuilder.AddMetrics();
-            }
-
-            return mvcBuilder;
         }
 
         public static IApplicationBuilder UseMonitoringServices(this IApplicationBuilder builder, MonitoringOptions monitoringOptions)
