@@ -16,6 +16,8 @@ namespace DddDotNet.CrossCuttingConcerns.IO
 
         FileStream CreateTempFileStream();
 
+        FileStream CreateTempFileStream(string path);
+
         StreamWriter CreateText(string path);
 
         void Delete(string path);
