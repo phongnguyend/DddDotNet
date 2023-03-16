@@ -34,7 +34,15 @@ namespace DddDotNet.Infrastructure.IO
 
         public static FileStream CreateTempFileStream()
         {
-            return new FileStream(Path.GetTempFileName(), FileMode.Open, FileAccess.ReadWrite, FileShare.None, 4096, FileOptions.DeleteOnClose);
+            string tempFilePath;
+
+            do
+            {
+                tempFilePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            }
+            while (File.Exists(tempFilePath));
+
+            return new FileStream(tempFilePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None, 4096, FileOptions.DeleteOnClose);
         }
     }
 }
