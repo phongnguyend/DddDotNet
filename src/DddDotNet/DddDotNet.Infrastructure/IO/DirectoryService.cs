@@ -7,6 +7,20 @@ namespace DddDotNet.Infrastructure.IO
 {
     public class DirectoryService : IDirectoryService
     {
+        private static class DirectorySeparator
+        {
+            public const string Windows = "\\";
+            public const string Unix = "/";
+            public const string Mac = ":";
+        }
+
+        private static class VolumeSeparator
+        {
+            public const string Windows = ":";
+            public const string Unix = "/";
+            public const string Mac = ":";
+        }
+
         public DirectoryInfo CreateDirectory(string path)
         {
             return Directory.CreateDirectory(path);
