@@ -1,13 +1,15 @@
 ﻿using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.MessageBrokers.Fake
+namespace DddDotNet.Infrastructure.MessageBrokers.Fake;
+
+public class FakeReceiver<T> : IMessageReceiver<T>
 {
-    public class FakeReceiver<T> : IMessageReceiver<T>
+    public Task ReceiveAsync(Func<T, MetaData, Task> action, CancellationToken cancellationToken)
     {
-        public void Receive(Action<T, MetaData> action)
-        {
-            // do nothing
-        }
+        // do nothing
+        return Task.CompletedTask;
     }
 }

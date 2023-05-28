@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace DddDotNet.Domain.Infrastructure.MessageBrokers
 {
     public interface IMessageReceiver<T>
     {
-        void Receive(Action<T, MetaData> action);
+        Task ReceiveAsync(Func<T, MetaData, Task> action, CancellationToken cancellationToken = default);
     }
 }

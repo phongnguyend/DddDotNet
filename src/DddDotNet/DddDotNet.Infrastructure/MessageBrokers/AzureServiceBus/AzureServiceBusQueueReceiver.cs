@@ -3,58 +3,48 @@ using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using System;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus
+namespace DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus;
+
+public class AzureServiceBusQueueReceiver<T> : IMessageReceiver<T>
 {
-    public class AzureServiceBusQueueReceiver<T> : IMessageReceiver<T>
+    private readonly string _connectionString;
+    private readonly string _queueName;
+
+    public AzureServiceBusQueueReceiver(string connectionString, string queueName)
     {
-        private readonly string _connectionString;
-        private readonly string _queueName;
+        _connectionString = connectionString;
+        _queueName = queueName;
+    }
 
-        public AzureServiceBusQueueReceiver(string connectionString, string queueName)
+    public async Task ReceiveAsync(Func<T, MetaData, Task> action, CancellationToken cancellationToken = default)
+    {
+        await ReceiveStringAsync(async retrievedMessage =>
         {
-            _connectionString = connectionString;
-            _queueName = queueName;
-        }
+            var message = JsonSerializer.Deserialize<Message<T>>(retrievedMessage);
+            await action(message.Data, message.MetaData);
+        }, cancellationToken);
+    }
 
-        public void Receive(Action<T, MetaData> action)
-        {
-            Task.Factory.StartNew(() => ReceiveAsync(action));
-        }
+    private async Task ReceiveStringAsync(Func<string, Task> action, CancellationToken cancellationToken)
+    {
+        await using var client = new ServiceBusClient(_connectionString);
+        ServiceBusReceiver receiver = client.CreateReceiver(_queueName);
 
-        private Task ReceiveAsync(Action<T, MetaData> action)
+        while (!cancellationToken.IsCancellationRequested)
         {
-            return ReceiveStringAsync(retrievedMessage =>
+            var retrievedMessage = await receiver.ReceiveMessageAsync(cancellationToken: cancellationToken);
+
+            if (retrievedMessage != null)
             {
-                var message = JsonSerializer.Deserialize<Message<T>>(retrievedMessage);
-                action(message.Data, message.MetaData);
-            });
-        }
-
-        public void ReceiveString(Action<string> action)
-        {
-            Task.Factory.StartNew(() => ReceiveStringAsync(action));
-        }
-
-        private async Task ReceiveStringAsync(Action<string> action)
-        {
-            await using var client = new ServiceBusClient(_connectionString);
-            ServiceBusReceiver receiver = client.CreateReceiver(_queueName);
-
-            while (true)
+                await action(Encoding.UTF8.GetString(retrievedMessage.Body));
+                await receiver.CompleteMessageAsync(retrievedMessage, cancellationToken);
+            }
+            else
             {
-                var retrievedMessage = await receiver.ReceiveMessageAsync();
-
-                if (retrievedMessage != null)
-                {
-                    action(Encoding.UTF8.GetString(retrievedMessage.Body));
-                    await receiver.CompleteMessageAsync(retrievedMessage);
-                }
-                else
-                {
-                    await Task.Delay(1000);
-                }
+                await Task.Delay(1000, cancellationToken);
             }
         }
     }

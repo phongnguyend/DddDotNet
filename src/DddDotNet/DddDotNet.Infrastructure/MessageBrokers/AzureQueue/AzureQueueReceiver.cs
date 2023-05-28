@@ -2,75 +2,65 @@
 using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using System;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.MessageBrokers.AzureQueue
+namespace DddDotNet.Infrastructure.MessageBrokers.AzureQueue;
+
+public class AzureQueueReceiver<T> : IMessageReceiver<T>
 {
-    public class AzureQueueReceiver<T> : IMessageReceiver<T>
+    private readonly string _connectionString;
+    private readonly string _queueName;
+    private readonly QueueMessageEncoding _messageEncoding;
+
+    public AzureQueueReceiver(string connectionString, string queueName, QueueMessageEncoding messageEncoding = QueueMessageEncoding.None)
     {
-        private readonly string _connectionString;
-        private readonly string _queueName;
-        private readonly QueueMessageEncoding _messageEncoding;
+        _connectionString = connectionString;
+        _queueName = queueName;
+        _messageEncoding = messageEncoding;
+    }
 
-        public AzureQueueReceiver(string connectionString, string queueName, QueueMessageEncoding messageEncoding = QueueMessageEncoding.None)
+    public async Task ReceiveAsync(Func<T, MetaData, Task> action, CancellationToken cancellationToken = default)
+    {
+        await ReceiveStringAsync(async retrievedMessage =>
         {
-            _connectionString = connectionString;
-            _queueName = queueName;
-            _messageEncoding = messageEncoding;
-        }
+            var message = JsonSerializer.Deserialize<Message<T>>(retrievedMessage);
+            await action(message.Data, message.MetaData);
+        }, cancellationToken);
+    }
 
-        public void Receive(Action<T, MetaData> action)
+    public async Task ReceiveStringAsync(Func<string, Task> action, CancellationToken cancellationToken = default)
+    {
+        var queueClient = new QueueClient(_connectionString, _queueName, new QueueClientOptions
         {
-            Task.Factory.StartNew(() => ReceiveAsync(action));
-        }
+            MessageEncoding = _messageEncoding,
+        });
 
-        private Task ReceiveAsync(Action<T, MetaData> action)
+        await queueClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
+
+        while (!cancellationToken.IsCancellationRequested)
         {
-            return ReceiveStringAsync(retrievedMessage =>
+            try
             {
-                var message = JsonSerializer.Deserialize<Message<T>>(retrievedMessage);
-                action(message.Data, message.MetaData);
-            });
-        }
+                var retrievedMessages = (await queueClient.ReceiveMessagesAsync(cancellationToken)).Value;
 
-        public void ReceiveString(Action<string> action)
-        {
-            Task.Factory.StartNew(() => ReceiveStringAsync(action));
-        }
-
-        private async Task ReceiveStringAsync(Action<string> action)
-        {
-            var queueClient = new QueueClient(_connectionString, _queueName, new QueueClientOptions
-            {
-                MessageEncoding = _messageEncoding,
-            });
-
-            await queueClient.CreateIfNotExistsAsync();
-
-            while (true)
-            {
-                try
+                if (retrievedMessages.Length > 0)
                 {
-                    var retrievedMessages = (await queueClient.ReceiveMessagesAsync()).Value;
-
-                    if (retrievedMessages.Length > 0)
+                    foreach (var retrievedMessage in retrievedMessages)
                     {
-                        foreach (var retrievedMessage in retrievedMessages)
-                        {
-                            action(retrievedMessage.Body.ToString());
-                            await queueClient.DeleteMessageAsync(retrievedMessage.MessageId, retrievedMessage.PopReceipt);
-                        }
-                    }
-                    else
-                    {
-                        await Task.Delay(1000);
+                        await action(retrievedMessage.Body.ToString());
+                        await queueClient.DeleteMessageAsync(retrievedMessage.MessageId, retrievedMessage.PopReceipt, cancellationToken);
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine(ex);
-                    await Task.Delay(1000);
+                    await Task.Delay(1000, cancellationToken);
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                await Task.Delay(1000, cancellationToken);
             }
         }
     }

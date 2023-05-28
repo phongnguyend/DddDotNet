@@ -2,57 +2,60 @@
 using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using System;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.MessageBrokers.ApacheActiveMQ
+namespace DddDotNet.Infrastructure.MessageBrokers.ApacheActiveMQ;
+
+public class ApacheActiveMQReceiver<T> : IMessageReceiver<T>
 {
-    public class ApacheActiveMQReceiver<T> : IMessageReceiver<T>
+    private readonly ApacheActiveMQOptions _options;
+
+    public ApacheActiveMQReceiver(ApacheActiveMQOptions options)
     {
-        private readonly ApacheActiveMQOptions _options;
+        _options = options;
+    }
 
-        public ApacheActiveMQReceiver(ApacheActiveMQOptions options)
+    public Task ReceiveAsync(Func<T, MetaData, Task> action, CancellationToken cancellationToken = default)
+    {
+        Uri connecturi = new Uri(_options.Url);
+        IConnectionFactory factory = new NMSConnectionFactory(connecturi);
+        IConnection connection = factory.CreateConnection(_options.UserName, _options.Password);
+        ISession session = connection.CreateSession(!string.IsNullOrWhiteSpace(_options.TopicName) ? AcknowledgementMode.AutoAcknowledge : AcknowledgementMode.IndividualAcknowledge);
+        IMessageConsumer consumer = null;
+
+        if (!string.IsNullOrWhiteSpace(_options.QueueName))
         {
-            _options = options;
+            consumer = session.CreateConsumer(session.GetQueue(_options.QueueName));
         }
-
-        public void Receive(Action<T, MetaData> action)
+        else if (!string.IsNullOrWhiteSpace(_options.TopicName))
         {
-            Uri connecturi = new Uri(_options.Url);
-            IConnectionFactory factory = new NMSConnectionFactory(connecturi);
-            IConnection connection = factory.CreateConnection(_options.UserName, _options.Password);
-            ISession session = connection.CreateSession(!string.IsNullOrWhiteSpace(_options.TopicName) ? AcknowledgementMode.AutoAcknowledge : AcknowledgementMode.IndividualAcknowledge);
-            IMessageConsumer consumer = null;
-
-            if (!string.IsNullOrWhiteSpace(_options.QueueName))
+            if (string.IsNullOrWhiteSpace(_options.SubscriberName))
             {
-                consumer = session.CreateConsumer(session.GetQueue(_options.QueueName));
+                consumer = session.CreateConsumer(session.GetTopic(_options.TopicName));
             }
-            else if (!string.IsNullOrWhiteSpace(_options.TopicName))
+            else
             {
-                if (string.IsNullOrWhiteSpace(_options.SubscriberName))
+                if (_options.SharedDurableSubscriber)
                 {
-                    consumer = session.CreateConsumer(session.GetTopic(_options.TopicName));
+                    session.CreateSharedDurableConsumer(session.GetTopic(_options.TopicName), _options.SubscriberName); // not supported yet
                 }
                 else
                 {
-                    if (_options.SharedDurableSubscriber)
-                    {
-                        session.CreateSharedDurableConsumer(session.GetTopic(_options.TopicName), _options.SubscriberName); // not supported yet
-                    }
-                    else
-                    {
-                        consumer = session.CreateDurableConsumer(session.GetTopic(_options.TopicName), _options.SubscriberName);
-                    }
+                    consumer = session.CreateDurableConsumer(session.GetTopic(_options.TopicName), _options.SubscriberName);
                 }
             }
-
-            connection.Start();
-
-            consumer.Listener += (IMessage retrievedMessage) =>
-            {
-                var message = JsonSerializer.Deserialize<Message<T>>((retrievedMessage as ITextMessage).Text);
-                action(message.Data, message.MetaData);
-                retrievedMessage.Acknowledge();
-            };
         }
+
+        connection.Start();
+
+        consumer.Listener += (IMessage retrievedMessage) =>
+        {
+            var message = JsonSerializer.Deserialize<Message<T>>((retrievedMessage as ITextMessage).Text);
+            action(message.Data, message.MetaData).Wait();
+            retrievedMessage.Acknowledge();
+        };
+
+        return Task.CompletedTask;
     }
 }

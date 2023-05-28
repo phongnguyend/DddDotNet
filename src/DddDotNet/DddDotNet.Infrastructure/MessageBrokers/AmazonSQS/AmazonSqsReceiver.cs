@@ -3,66 +3,56 @@ using Amazon.SQS;
 using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using System;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.MessageBrokers.AmazonSQS
+namespace DddDotNet.Infrastructure.MessageBrokers.AmazonSQS;
+
+public class AmazonSqsReceiver<T> : IMessageReceiver<T>
 {
-    public class AmazonSqsReceiver<T> : IMessageReceiver<T>
+    private readonly AmazonSqsOptions _options;
+
+    public AmazonSqsReceiver(AmazonSqsOptions options)
     {
-        private readonly AmazonSqsOptions _options;
+        _options = options;
+    }
 
-        public AmazonSqsReceiver(AmazonSqsOptions options)
+    public async Task ReceiveAsync(Func<T, MetaData, Task> action, CancellationToken cancellationToken = default)
+    {
+        await ReceiveStringAsync(async retrievedMessage =>
         {
-            _options = options;
-        }
+            var message = JsonSerializer.Deserialize<Message<T>>(retrievedMessage);
+            await action(message.Data, message.MetaData);
+        }, cancellationToken);
+    }
 
-        public void Receive(Action<T, MetaData> action)
-        {
-            Task.Factory.StartNew(() => ReceiveAsync(action));
-        }
+    private async Task ReceiveStringAsync(Func<string, Task> action, CancellationToken cancellationToken)
+    {
+        var sqsClient = new AmazonSQSClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
 
-        private Task ReceiveAsync(Action<T, MetaData> action)
+        while (!cancellationToken.IsCancellationRequested)
         {
-            return ReceiveStringAsync(retrievedMessage =>
+            try
             {
-                var message = JsonSerializer.Deserialize<Message<T>>(retrievedMessage);
-                action(message.Data, message.MetaData);
-            });
-        }
+                var retrievedMessages = await sqsClient.ReceiveMessageAsync(_options.QueueUrl);
 
-        public void ReceiveString(Action<string> action)
-        {
-            Task.Factory.StartNew(() => ReceiveStringAsync(action));
-        }
-
-        private async Task ReceiveStringAsync(Action<string> action)
-        {
-            var sqsClient = new AmazonSQSClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
-
-            while (true)
-            {
-                try
+                if (retrievedMessages.Messages.Count > 0)
                 {
-                    var retrievedMessages = await sqsClient.ReceiveMessageAsync(_options.QueueUrl);
-
-                    if (retrievedMessages.Messages.Count > 0)
+                    foreach (var retrievedMessage in retrievedMessages.Messages)
                     {
-                        foreach (var retrievedMessage in retrievedMessages.Messages)
-                        {
-                            action(retrievedMessage.Body);
-                            await sqsClient.DeleteMessageAsync(_options.QueueUrl, retrievedMessage.ReceiptHandle);
-                        }
-                    }
-                    else
-                    {
-                        await Task.Delay(1000);
+                        await action(retrievedMessage.Body);
+                        await sqsClient.DeleteMessageAsync(_options.QueueUrl, retrievedMessage.ReceiptHandle);
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine(ex);
-                    await Task.Delay(1000);
+                    await Task.Delay(1000, cancellationToken);
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                await Task.Delay(1000, cancellationToken);
             }
         }
     }
