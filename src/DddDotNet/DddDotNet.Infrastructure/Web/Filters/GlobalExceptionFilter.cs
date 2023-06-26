@@ -1,76 +1,103 @@
 ﻿using DddDotNet.CrossCuttingConcerns.Exceptions;
+using DddDotNet.Infrastructure.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.Diagnostics;
 using System.Net;
-using System.Threading;
 
-namespace DddDotNet.Infrastructure.Web.Filters
+namespace DddDotNet.Infrastructure.Web.Filters;
+
+public class GlobalExceptionFilter : IExceptionFilter
 {
-    public class GlobalExceptionFilter : IExceptionFilter
+    private readonly ILogger<GlobalExceptionFilter> _logger;
+    private readonly GlobalExceptionFilterOptions _options;
+
+    public GlobalExceptionFilter(ILogger<GlobalExceptionFilter> logger,
+        IOptionsSnapshot<GlobalExceptionFilterOptions> options)
     {
-        private readonly ILogger<GlobalExceptionFilter> _logger;
-        private readonly GlobalExceptionFilterOptions _options;
+        _logger = logger;
+        _options = options.Value;
+    }
 
-        public GlobalExceptionFilter(ILogger<GlobalExceptionFilter> logger,
-            IOptionsSnapshot<GlobalExceptionFilterOptions> options)
+    public void OnException(ExceptionContext context)
+    {
+        if (context.Exception is NotFoundException)
         {
-            _logger = logger;
-            _options = options.Value;
+            context.Result = new NotFoundResult();
         }
-
-        public void OnException(ExceptionContext context)
+        else if (context.Exception is ValidationException)
         {
-            if (context.Exception is NotFoundException)
+            var problemDetails = new ProblemDetails
             {
-                context.Result = new NotFoundResult();
-            }
-            else if (context.Exception is ValidationException)
-            {
-                context.Result = new BadRequestObjectResult(context.Exception.Message);
-            }
-            else
-            {
-                _logger.LogError(context.Exception, "[{0}-{1}]", DateTime.UtcNow.Ticks, Thread.CurrentThread.ManagedThreadId);
+                Detail = context.Exception.Message,
+                Instance = null,
+                Status = (int)HttpStatusCode.BadRequest,
+                Title = "Bad Request",
+                Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1"
+            };
 
-                if (_options.DetailLevel == GlobalExceptionDetailLevel.Throw)
-                {
-                    return;
-                }
+            problemDetails.Extensions.Add("message", context.Exception.Message);
+            problemDetails.Extensions.Add("traceId", Activity.Current.GetTraceId());
 
-                context.Result = new ObjectResult(new { Message = GetErrorMessage(context.Exception) })
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                };
-            }
+            context.Result = new ObjectResult(problemDetails)
+            {
+                StatusCode = (int)HttpStatusCode.BadRequest,
+            };
         }
-
-        private string GetErrorMessage(Exception ex)
+        else
         {
-            return _options.DetailLevel switch
+            _logger.LogError(context.Exception, "[{Ticks}-{ThreadId}]", DateTime.UtcNow.Ticks, Environment.CurrentManagedThreadId);
+
+            if (_options.DetailLevel == GlobalExceptionDetailLevel.Throw)
             {
-                GlobalExceptionDetailLevel.None => "An internal exception has occurred.",
-                GlobalExceptionDetailLevel.Message => ex.Message,
-                GlobalExceptionDetailLevel.StackTrace => ex.StackTrace,
-                GlobalExceptionDetailLevel.ToString => ex.ToString(),
-                _ => "An internal exception has occurred.",
+                return;
+            }
+
+            var problemDetails = new ProblemDetails
+            {
+                Detail = GetErrorMessage(context.Exception),
+                Instance = null,
+                Status = (int)HttpStatusCode.InternalServerError,
+                Title = "Internal Server Error",
+                Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1"
+            };
+
+            problemDetails.Extensions.Add("message", GetErrorMessage(context.Exception));
+            problemDetails.Extensions.Add("traceId", Activity.Current.GetTraceId());
+
+            context.Result = new ObjectResult(problemDetails)
+            {
+                StatusCode = (int)HttpStatusCode.InternalServerError,
             };
         }
     }
 
-    public class GlobalExceptionFilterOptions
+    private string GetErrorMessage(Exception ex)
     {
-        public GlobalExceptionDetailLevel DetailLevel { get; set; }
+        return _options.DetailLevel switch
+        {
+            GlobalExceptionDetailLevel.None => "An internal exception has occurred.",
+            GlobalExceptionDetailLevel.Message => ex.Message,
+            GlobalExceptionDetailLevel.StackTrace => ex.StackTrace,
+            GlobalExceptionDetailLevel.ToString => ex.ToString(),
+            _ => "An internal exception has occurred.",
+        };
     }
+}
 
-    public enum GlobalExceptionDetailLevel
-    {
-        None,
-        Message,
-        StackTrace,
-        ToString,
-        Throw,
-    }
+public class GlobalExceptionFilterOptions
+{
+    public GlobalExceptionDetailLevel DetailLevel { get; set; }
+}
+
+public enum GlobalExceptionDetailLevel
+{
+    None,
+    Message,
+    StackTrace,
+    ToString,
+    Throw,
 }
