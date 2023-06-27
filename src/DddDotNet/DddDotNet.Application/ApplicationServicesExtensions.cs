@@ -1,9 +1,8 @@
-﻿using System;
+﻿using DddDotNet.Application;
+using DddDotNet.Domain.Entities;
+using System;
 using System.Linq;
 using System.Reflection;
-using DddDotNet.Application;
-using DddDotNet.Domain.Entities;
-using DddDotNet.Domain.Events;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -13,8 +12,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddScoped<Dispatcher>();
 
-            services.AddScoped<IDomainEvents, DomainEvents>()
-                .AddScoped(typeof(ICrudService<>), typeof(CrudService<>));
+            services.AddScoped(typeof(ICrudService<>), typeof(CrudService<>));
 
             return services;
         }
@@ -43,10 +41,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var genericHandlerTypes = new[]
             {
-                typeof(GetEntititesQueryHandler<>),
-                typeof(GetEntityByIdQueryHandler<>),
-                typeof(AddOrUpdateEntityCommandHandler<>),
-                typeof(DeleteEntityCommandHandler<>),
+            typeof(GetEntititesQueryHandler<>),
+            typeof(GetEntityByIdQueryHandler<>),
+            typeof(AddOrUpdateEntityCommandHandler<>),
+            typeof(DeleteEntityCommandHandler<>),
             };
 
             foreach (var aggregateRootType in aggregateRootTypes)
@@ -63,6 +61,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 }
             }
+
+            Dispatcher.RegisterEventHandlers(assembly, services);
 
             return services;
         }
