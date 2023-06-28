@@ -1,88 +1,105 @@
 ﻿using DddDotNet.CrossCuttingConcerns.Exceptions;
+using DddDotNet.Infrastructure.Logging;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.Web.Middleware
+namespace DddDotNet.Infrastructure.Web.Middleware;
+
+public class GlobalExceptionHandlerMiddleware
 {
-    public class GlobalExceptionHandlerMiddleware
+    private readonly RequestDelegate _next;
+    private readonly ILogger<GlobalExceptionHandlerMiddleware> _logger;
+    private readonly GlobalExceptionHandlerMiddlewareOptions _options;
+
+    public GlobalExceptionHandlerMiddleware(RequestDelegate next,
+        ILogger<GlobalExceptionHandlerMiddleware> logger,
+        GlobalExceptionHandlerMiddlewareOptions options)
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<GlobalExceptionHandlerMiddleware> _logger;
-        private readonly GlobalExceptionHandlerMiddlewareOptions _options;
+        _next = next;
+        _logger = logger;
+        _options = options;
+    }
 
-        public GlobalExceptionHandlerMiddleware(RequestDelegate next,
-            ILogger<GlobalExceptionHandlerMiddleware> logger,
-            GlobalExceptionHandlerMiddlewareOptions options)
+    public async Task InvokeAsync(HttpContext context)
+    {
+        try
         {
-            _next = next;
-            _logger = logger;
-            _options = options;
+            await _next(context);
         }
-
-        public async Task InvokeAsync(HttpContext context)
+        catch (Exception ex)
         {
-            try
-            {
-                await _next(context);
-            }
-            catch (Exception ex)
-            {
-                var response = context.Response;
-                response.ContentType = "application/json";
+            var response = context.Response;
+            response.ContentType = "application/problem+json";
 
-                switch (ex)
-                {
-                    case ValidationException:
-                        response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        break;
-                    case NotFoundException:
-                        response.StatusCode = (int)HttpStatusCode.NotFound;
-                        break;
-                    default:
-                        _logger.LogError(ex, "[{0}-{1}]", DateTime.UtcNow.Ticks, Thread.CurrentThread.ManagedThreadId);
-                        response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                        break;
-                }
-
-                var result = JsonSerializer.Serialize(new { message = GetErrorMessage(ex) });
-                await response.WriteAsync(result);
-            }
-        }
-
-        private string GetErrorMessage(Exception ex)
-        {
-            if (ex is ValidationException)
+            var problemDetails = new ProblemDetails
             {
-                return ex.Message;
-            }
-
-            return _options.DetailLevel switch
-            {
-                GlobalExceptionDetailLevel.None => "An internal exception has occurred.",
-                GlobalExceptionDetailLevel.Message => ex.Message,
-                GlobalExceptionDetailLevel.StackTrace => ex.StackTrace,
-                GlobalExceptionDetailLevel.ToString => ex.ToString(),
-                _ => "An internal exception has occurred.",
+                Detail = GetErrorMessage(ex)
             };
+
+            problemDetails.Extensions.Add("message", GetErrorMessage(ex));
+            problemDetails.Extensions.Add("traceId", Activity.Current.GetTraceId());
+
+            switch (ex)
+            {
+                case NotFoundException:
+                    problemDetails.Status = (int)HttpStatusCode.NotFound;
+                    problemDetails.Title = "Not Found";
+                    problemDetails.Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.4";
+                    break;
+                case ValidationException:
+                    problemDetails.Status = (int)HttpStatusCode.BadRequest;
+                    problemDetails.Title = "Bad Request";
+                    problemDetails.Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1";
+                    break;
+                default:
+                    _logger.LogError(ex, "[{Ticks}-{ThreadId}]", DateTime.UtcNow.Ticks, Environment.CurrentManagedThreadId);
+                    problemDetails.Status = (int)HttpStatusCode.InternalServerError;
+                    problemDetails.Title = "Internal Server Error";
+                    problemDetails.Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1";
+                    break;
+            }
+
+            response.StatusCode = problemDetails.Status.Value;
+
+            var result = JsonSerializer.Serialize(problemDetails);
+            await response.WriteAsync(result);
         }
     }
 
-    public class GlobalExceptionHandlerMiddlewareOptions
+    private string GetErrorMessage(Exception ex)
     {
-        public GlobalExceptionDetailLevel DetailLevel { get; set; }
-    }
+        if (ex is ValidationException)
+        {
+            return ex.Message;
+        }
 
-    public enum GlobalExceptionDetailLevel
-    {
-        None,
-        Message,
-        StackTrace,
-        ToString,
-        Throw,
+        return _options.DetailLevel switch
+        {
+            GlobalExceptionDetailLevel.None => "An internal exception has occurred.",
+            GlobalExceptionDetailLevel.Message => ex.Message,
+            GlobalExceptionDetailLevel.StackTrace => ex.StackTrace,
+            GlobalExceptionDetailLevel.ToString => ex.ToString(),
+            _ => "An internal exception has occurred.",
+        };
     }
+}
+
+public class GlobalExceptionHandlerMiddlewareOptions
+{
+    public GlobalExceptionDetailLevel DetailLevel { get; set; }
+}
+
+public enum GlobalExceptionDetailLevel
+{
+    None,
+    Message,
+    StackTrace,
+    ToString,
+    Throw,
 }
