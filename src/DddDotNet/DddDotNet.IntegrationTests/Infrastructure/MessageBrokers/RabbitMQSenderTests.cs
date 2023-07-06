@@ -6,60 +6,62 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace DddDotNet.IntegrationTests.Infrastructure.MessageBrokers
+namespace DddDotNet.IntegrationTests.Infrastructure.MessageBrokers;
+
+public class RabbitMQSenderTests
 {
-    public class RabbitMQSenderTests
+    private static RabbitMQSenderOptions _rabbitMQSenderOptions;
+
+    public RabbitMQSenderTests()
     {
-        private static RabbitMQSenderOptions _rabbitMQSenderOptions;
+        var config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .AddUserSecrets("09f024f8-e8d1-4b78-9ddd-da941692e8fa")
+            .Build();
 
-        public RabbitMQSenderTests()
+        _rabbitMQSenderOptions = new RabbitMQSenderOptions();
+
+        config.GetSection("MessageBroker:RabbitMQ").Bind(_rabbitMQSenderOptions);
+
+        //_rabbitMQSenderOptions.MessageEncryptionEnabled = true;
+        _rabbitMQSenderOptions.MessageEncryptionKey = "KEhv7V8VedlhVlNr5vQstLk99l5uflYGB5lamGZd4R4=";
+    }
+
+    [Fact]
+    public async Task SendAsync_Success()
+    {
+        for (int i = 0; i < 10; i++)
         {
-            var config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .AddUserSecrets("09f024f8-e8d1-4b78-9ddd-da941692e8fa")
-                .Build();
-
-            _rabbitMQSenderOptions = new RabbitMQSenderOptions();
-
-            config.GetSection("MessageBroker:RabbitMQ").Bind(_rabbitMQSenderOptions);
+            var message = Message.GetTestMessage();
+            var metaData = new MetaData { };
+            var sender = new RabbitMQSender<Message>(_rabbitMQSenderOptions);
+            await sender.SendAsync(message, metaData);
         }
+    }
 
-        [Fact]
-        public async Task SendAsync_Success()
+    [Fact]
+    public async Task HealthCheck_Healthy()
+    {
+        var healthCheck = new RabbitMQHealthCheck(new RabbitMQHealthCheckOptions
         {
-            for (int i = 0; i < 10; i++)
-            {
-                var message = Message.GetTestMessage();
-                var metaData = new MetaData { };
-                var sender = new RabbitMQSender<Message>(_rabbitMQSenderOptions);
-                await sender.SendAsync(message, metaData);
-            }
-        }
+            HostName = _rabbitMQSenderOptions.HostName,
+            UserName = _rabbitMQSenderOptions.UserName,
+            Password = _rabbitMQSenderOptions.Password,
+        });
+        var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+        Assert.Equal(HealthStatus.Healthy, checkResult.Status);
+    }
 
-        [Fact]
-        public async Task HealthCheck_Healthy()
+    [Fact]
+    public async Task HealthCheck_Degraded()
+    {
+        var healthCheck = new RabbitMQHealthCheck(new RabbitMQHealthCheckOptions
         {
-            var healthCheck = new RabbitMQHealthCheck(new RabbitMQHealthCheckOptions
-            {
-                HostName = _rabbitMQSenderOptions.HostName,
-                UserName = _rabbitMQSenderOptions.UserName,
-                Password = _rabbitMQSenderOptions.Password,
-            });
-            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
-            Assert.Equal(HealthStatus.Healthy, checkResult.Status);
-        }
-
-        [Fact]
-        public async Task HealthCheck_Degraded()
-        {
-            var healthCheck = new RabbitMQHealthCheck(new RabbitMQHealthCheckOptions
-            {
-                HostName = _rabbitMQSenderOptions.HostName,
-                UserName = Guid.NewGuid().ToString(),
-                Password = Guid.NewGuid().ToString(),
-            });
-            var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
-            Assert.Equal(HealthStatus.Degraded, checkResult.Status);
-        }
+            HostName = _rabbitMQSenderOptions.HostName,
+            UserName = Guid.NewGuid().ToString(),
+            Password = Guid.NewGuid().ToString(),
+        });
+        var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
+        Assert.Equal(HealthStatus.Degraded, checkResult.Status);
     }
 }

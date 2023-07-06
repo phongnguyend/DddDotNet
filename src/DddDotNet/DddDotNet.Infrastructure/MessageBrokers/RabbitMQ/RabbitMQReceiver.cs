@@ -1,8 +1,11 @@
-﻿using DddDotNet.Domain.Infrastructure.MessageBrokers;
+﻿using CryptographyHelper;
+using CryptographyHelper.SymmetricAlgorithms;
+using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -73,8 +76,21 @@ public class RabbitMQReceiver<T> : IMessageReceiver<T>, IDisposable
         var consumer = new AsyncEventingBasicConsumer(_channel);
         consumer.Received += async (model, ea) =>
         {
-            var body = Encoding.UTF8.GetString(ea.Body.Span);
-            var message = JsonSerializer.Deserialize<Message<T>>(body);
+            var bodyText = string.Empty;
+
+            if (_options.MessageEncryptionEnabled)
+            {
+                bodyText = ea.Body.Span.ToArray().UseAES(_options.MessageEncryptionKey.FromBase64String())
+                .WithCipher(CipherMode.ECB)
+                .Decrypt()
+                .GetString();
+            }
+            else
+            {
+                bodyText = Encoding.UTF8.GetString(ea.Body.Span);
+            }
+
+            var message = JsonSerializer.Deserialize<Message<T>>(bodyText);
             await action(message.Data, message.MetaData);
             _channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
         };

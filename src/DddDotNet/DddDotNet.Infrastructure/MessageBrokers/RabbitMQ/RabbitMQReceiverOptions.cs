@@ -19,5 +19,9 @@
         public string RoutingKey { get; set; }
 
         public bool SingleActiveConsumer { get; set; }
+
+        public bool MessageEncryptionEnabled { get; set; }
+
+        public string MessageEncryptionKey { get; set; }
     }
 }
