@@ -76,24 +76,34 @@ public class RabbitMQReceiver<T> : IMessageReceiver<T>, IDisposable
         var consumer = new AsyncEventingBasicConsumer(_channel);
         consumer.Received += async (model, ea) =>
         {
-            var bodyText = string.Empty;
-
-            if (_options.MessageEncryptionEnabled)
+            try
             {
-                bodyText = ea.Body.Span.ToArray().UseAES(_options.MessageEncryptionKey.FromBase64String())
-                .WithCipher(CipherMode.ECB)
-                .Decrypt()
-                .GetString();
-            }
-            else
-            {
-                bodyText = Encoding.UTF8.GetString(ea.Body.Span);
-            }
+                var bodyText = string.Empty;
 
-            var message = JsonSerializer.Deserialize<Message<T>>(bodyText);
-            await action(message.Data, message.MetaData);
-            _channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+                if (_options.MessageEncryptionEnabled)
+                {
+                    bodyText = ea.Body.Span.ToArray().UseAES(_options.MessageEncryptionKey.FromBase64String())
+                    .WithCipher(CipherMode.ECB)
+                    .Decrypt()
+                    .GetString();
+                }
+                else
+                {
+                    bodyText = Encoding.UTF8.GetString(ea.Body.Span);
+                }
+
+                var message = JsonSerializer.Deserialize<Message<T>>(bodyText);
+
+                await action(message.Data, message.MetaData);
+
+                _channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+            }
+            catch (Exception ex)
+            {
+                // TODO: log here
+            }
         };
+
         _channel.BasicConsume(queue: _queueName,
                              autoAck: false,
                              consumer: consumer);
