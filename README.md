@@ -1,3 +1,8 @@
+## Identity Providers
+  | Identity  | Status | Health Check | Path |
+  | -------- | :----: | :----------: | ---- |
+  | Azure Active Directory B2C| ✅ | | [/Identity/Azure](/src/DddDotNet/DddDotNet.Infrastructure/Identity/Azure) |
+
 ## Storage Providers
   | Storage  | Status | Health Check | Path |
   | -------- | :----: | :----------: | ---- |
