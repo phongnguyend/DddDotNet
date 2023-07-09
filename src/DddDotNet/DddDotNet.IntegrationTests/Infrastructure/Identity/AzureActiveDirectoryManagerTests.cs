@@ -7,35 +7,35 @@ using Xunit;
 
 namespace DddDotNet.IntegrationTests.Infrastructure.Identity;
 
-public class AzureActiveDirectoryB2CManagerTests
+public class AzureActiveDirectoryManagerTests
 {
-    private readonly AzureAdB2COptions _options = new();
+    private readonly AzureAdOptions _options = new();
 
-    public AzureActiveDirectoryB2CManagerTests()
+    public AzureActiveDirectoryManagerTests()
     {
         var config = new ConfigurationBuilder()
         .AddJsonFile("appsettings.json")
         .AddUserSecrets("09f024f8-e8d1-4b78-9ddd-da941692e8fa")
         .Build();
 
-        config.GetSection("Identity:AzureActiveDirectoryB2C").Bind(_options);
+        config.GetSection("Identity:AzureActiveDirectory").Bind(_options);
     }
 
     [Fact]
     public async Task CreateAsync_Success()
     {
-        var sut = new AzureActiveDirectoryB2CManager(_options);
+        var sut = new AzureActiveDirectoryManager(_options);
 
         var users = await sut.GetUsersAsync();
 
         var newGuid = Guid.NewGuid().ToString().Replace("-", string.Empty);
         var user = new User
         {
-            Username = $"{newGuid}@gmail.com",
+            Username = $"{newGuid}@ddddotnet.onmicrosoft.com",
             Password = Guid.NewGuid().ToString(),
             FirstName = "FirstName",
             LastName = "LastName",
-            Email = $"{newGuid}@gmail.com",
+            Email = $"{newGuid}@ddddotnet.onmicrosoft.com",
         };
 
         await sut.CreateUserAsync(user);

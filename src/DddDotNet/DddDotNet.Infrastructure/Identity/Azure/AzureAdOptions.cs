@@ -1,6 +1,6 @@
 ﻿namespace DddDotNet.Infrastructure.Identity.Azure;
 
-public class AzudeAdB2COptions
+public class AzureAdOptions
 {
     public string TenantId { get; set; }
 

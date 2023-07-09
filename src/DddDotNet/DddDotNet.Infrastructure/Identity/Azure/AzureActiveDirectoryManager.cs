@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace DddDotNet.Infrastructure.Identity.Azure;
 
-public class AzureActiveDirectoryB2CManager : IUserManager
+public class AzureActiveDirectoryManager : IUserManager
 {
-    private readonly AzureAdB2COptions _options;
+    private readonly AzureAdOptions _options;
     private readonly GraphServiceClient _graphServiceClient;
 
-    public AzureActiveDirectoryB2CManager(AzureAdB2COptions options)
+    public AzureActiveDirectoryManager(AzureAdOptions options)
     {
         _options = options;
 
@@ -28,21 +28,14 @@ public class AzureActiveDirectoryB2CManager : IUserManager
         {
             var createdUser = await _graphServiceClient.Users.PostAsync(new Microsoft.Graph.Models.User
             {
+                UserPrincipalName = user.Username,
                 PasswordProfile = new Microsoft.Graph.Models.PasswordProfile { Password = user.Password },
                 GivenName = user.FirstName,
                 Surname = user.LastName,
                 DisplayName = $"{user.FirstName} {user.LastName}",
                 AccountEnabled = true,
                 Mail = user.Email,
-                Identities = new List<Microsoft.Graph.Models.ObjectIdentity>
-                {
-                    new Microsoft.Graph.Models.ObjectIdentity
-                    {
-                        SignInType = "emailAddress",
-                        Issuer = _options.TenantDomain,
-                        IssuerAssignedId = user.Username,
-                    }
-                }
+                MailNickname = user.Email.Split('@')[0]
             });
 
             user.Id = createdUser.Id;
@@ -62,22 +55,12 @@ public class AzureActiveDirectoryB2CManager : IUserManager
     {
         try
         {
-            var user = await _graphServiceClient.Users[userId].GetAsync((requestConfiguration) =>
-            {
-                requestConfiguration.QueryParameters.Select = new string[]
-                {
-                    "Id",
-                    "Mail",
-                    "GivenName",
-                    "Surname",
-                    "Identities"
-                };
-            });
+            var user = await _graphServiceClient.Users[userId].GetAsync();
 
             return new User
             {
                 Id = user.Id,
-                Username = user.Mail,
+                Username = user.UserPrincipalName,
                 FirstName = user.GivenName,
                 LastName = user.Surname
             };
@@ -101,25 +84,12 @@ public class AzureActiveDirectoryB2CManager : IUserManager
     {
         try
         {
-            var result = await _graphServiceClient.Users.GetAsync((requestConfiguration) =>
-            {
-                requestConfiguration.QueryParameters.Select = new string[]
-                {
-                    "Id",
-                    "Mail",
-                    "GivenName",
-                    "Surname",
-                    "Identities"
-                };
-                requestConfiguration.QueryParameters.Filter = $"identities/any(c:c/issuerAssignedId eq '{username}' and c/issuer eq '{_options.TenantId}')";
-            });
+            var user = await _graphServiceClient.Users[username].GetAsync();
 
-            var user = result.Value.FirstOrDefault();
-
-            return user is null ? null : new User
+            return new User
             {
                 Id = user.Id,
-                Username = username,
+                Username = user.UserPrincipalName,
                 FirstName = user.GivenName,
                 LastName = user.Surname
             };
@@ -146,7 +116,7 @@ public class AzureActiveDirectoryB2CManager : IUserManager
         return result.Value.Select(x => (IUser)new User
         {
             Id = x.Id,
-            Username = x.Mail,
+            Username = x.UserPrincipalName,
             FirstName = x.GivenName,
             LastName = x.Surname
         }).ToList();
