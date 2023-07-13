@@ -1,6 +1,7 @@
 ## Identity Providers
   | Identity  | Status | Health Check | Path |
-  | -------- | :----: | :----------: | ---- |
+  | --------- | :----: | :----------: | ---- |
+  | Auth0 by Okta| ✅ | | [/Identity/Auth0](/src/DddDotNet/DddDotNet.Infrastructure/Identity/Auth0) |
   | Azure Active Directory B2C| ✅ | | [/Identity/Azure](/src/DddDotNet/DddDotNet.Infrastructure/Identity/Azure) |
 
 ## Storage Providers
