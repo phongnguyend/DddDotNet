@@ -13,7 +13,7 @@ namespace DddDotNet.Domain.Repositories
     {
         IUnitOfWork UnitOfWork { get; }
 
-        IQueryable<TEntity> GetAll();
+        IQueryable<TEntity> GetQueryableSet();
 
         Task AddOrUpdateAsync(TEntity entity, CancellationToken cancellationToken = default);
 
