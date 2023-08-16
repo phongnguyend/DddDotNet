@@ -1,8 +1,7 @@
-﻿namespace DddDotNet.Infrastructure.Notification.Sms.Azure
+﻿namespace DddDotNet.Infrastructure.Notification.Sms.Azure;
+
+public class AzureOptions
 {
-    public class AzureOptions
-    {
-        public string ConnectionString { get; set; }
-        public string FromNumber { get; set; }
-    }
+    public string ConnectionString { get; set; }
+    public string FromNumber { get; set; }
 }

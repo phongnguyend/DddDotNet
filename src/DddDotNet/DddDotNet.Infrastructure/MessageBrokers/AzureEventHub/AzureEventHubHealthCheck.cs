@@ -4,31 +4,30 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.MessageBrokers.AzureEventHub
+namespace DddDotNet.Infrastructure.MessageBrokers.AzureEventHub;
+
+public class AzureEventHubHealthCheck : IHealthCheck
 {
-    public class AzureEventHubHealthCheck : IHealthCheck
+    private readonly string _connectionString;
+    private readonly string _hubName;
+
+    public AzureEventHubHealthCheck(string connectionString, string hubName)
     {
-        private readonly string _connectionString;
-        private readonly string _hubName;
+        _connectionString = connectionString;
+        _hubName = hubName;
+    }
 
-        public AzureEventHubHealthCheck(string connectionString, string hubName)
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    {
+        try
         {
-            _connectionString = connectionString;
-            _hubName = hubName;
+            await using var producer = new EventHubProducerClient(_connectionString, _hubName);
+            var properties = await producer.GetEventHubPropertiesAsync(cancellationToken);
+            return HealthCheckResult.Healthy();
         }
-
-        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+        catch (Exception ex)
         {
-            try
-            {
-                await using var producer = new EventHubProducerClient(_connectionString, _hubName);
-                var properties = await producer.GetEventHubPropertiesAsync(cancellationToken);
-                return HealthCheckResult.Healthy();
-            }
-            catch (Exception ex)
-            {
-                return new HealthCheckResult(context.Registration.FailureStatus, exception: ex);
-            }
+            return new HealthCheckResult(context.Registration.FailureStatus, exception: ex);
         }
     }
 }

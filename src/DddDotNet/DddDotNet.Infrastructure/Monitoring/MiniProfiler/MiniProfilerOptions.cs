@@ -1,20 +1,19 @@
-﻿namespace DddDotNet.Infrastructure.Monitoring.MiniProfiler
+﻿namespace DddDotNet.Infrastructure.Monitoring.MiniProfiler;
+
+public class MiniProfilerOptions
 {
-    public class MiniProfilerOptions
+    public bool IsEnabled { get; set; }
+
+    public SqlServerStorageOptions SqlServerStorage { get; set; }
+
+    public class SqlServerStorageOptions
     {
-        public bool IsEnabled { get; set; }
+        public string ConectionString { get; set; }
 
-        public SqlServerStorageOptions SqlServerStorage { get; set; }
+        public string ProfilersTable { get; set; }
 
-        public class SqlServerStorageOptions
-        {
-            public string ConectionString { get; set; }
+        public string TimingsTable { get; set; }
 
-            public string ProfilersTable { get; set; }
-
-            public string TimingsTable { get; set; }
-
-            public string ClientTimingsTable { get; set; }
-        }
+        public string ClientTimingsTable { get; set; }
     }
 }

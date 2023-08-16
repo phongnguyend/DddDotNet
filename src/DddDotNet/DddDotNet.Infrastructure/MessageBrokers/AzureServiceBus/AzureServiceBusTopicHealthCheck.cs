@@ -7,37 +7,36 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus
+namespace DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus;
+
+public class AzureServiceBusTopicHealthCheck : IHealthCheck
 {
-    public class AzureServiceBusTopicHealthCheck : IHealthCheck
+    private readonly string _connectionString;
+    private readonly string _topicName;
+
+    public AzureServiceBusTopicHealthCheck(string connectionString, string topicName)
     {
-        private readonly string _connectionString;
-        private readonly string _topicName;
+        _connectionString = connectionString;
+        _topicName = topicName;
+    }
 
-        public AzureServiceBusTopicHealthCheck(string connectionString, string topicName)
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    {
+        try
         {
-            _connectionString = connectionString;
-            _topicName = topicName;
+            var client = new ServiceBusAdministrationClient(_connectionString);
+            var topic = await client.GetTopicAsync(_topicName);
+
+            if (string.Equals(topic?.Value?.Name, _topicName, StringComparison.OrdinalIgnoreCase))
+            {
+                return HealthCheckResult.Healthy();
+            }
+
+            return new HealthCheckResult(context.Registration.FailureStatus, description: $"Topic: '{_topicName}' doesn't exist");
         }
-
-        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+        catch (Exception ex)
         {
-            try
-            {
-                var client = new ServiceBusAdministrationClient(_connectionString);
-                var topic = await client.GetTopicAsync(_topicName);
-
-                if (string.Equals(topic?.Value?.Name, _topicName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return HealthCheckResult.Healthy();
-                }
-
-                return new HealthCheckResult(context.Registration.FailureStatus, description: $"Topic: '{_topicName}' doesn't exist");
-            }
-            catch (Exception ex)
-            {
-                return new HealthCheckResult(context.Registration.FailureStatus, exception: ex);
-            }
+            return new HealthCheckResult(context.Registration.FailureStatus, exception: ex);
         }
     }
 }

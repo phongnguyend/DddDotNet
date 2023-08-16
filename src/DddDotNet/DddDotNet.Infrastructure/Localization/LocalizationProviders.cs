@@ -1,7 +1,6 @@
-﻿namespace DddDotNet.Infrastructure.Localization
+﻿namespace DddDotNet.Infrastructure.Localization;
+
+public class LocalizationProviders
 {
-    public class LocalizationProviders
-    {
-        public SqlServerOptions SqlServer { get; set; }
-    }
+    public SqlServerOptions SqlServer { get; set; }
 }

@@ -4,26 +4,25 @@ using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.MessageBrokers.AmazonSNS
+namespace DddDotNet.Infrastructure.MessageBrokers.AmazonSNS;
+
+public class AmazonSnsSender<T> : IMessageSender<T>
 {
-    public class AmazonSnsSender<T> : IMessageSender<T>
+    private readonly AmazonSnsOptions _options;
+
+    public AmazonSnsSender(AmazonSnsOptions options)
     {
-        private readonly AmazonSnsOptions _options;
+        _options = options;
+    }
 
-        public AmazonSnsSender(AmazonSnsOptions options)
+    public async Task SendAsync(T message, MetaData metaData = null, CancellationToken cancellationToken = default)
+    {
+        var snsClient = new AmazonSimpleNotificationServiceClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
+
+        var publishResponse = await snsClient.PublishAsync(_options.TopicARN, new Message<T>
         {
-            _options = options;
-        }
-
-        public async Task SendAsync(T message, MetaData metaData = null, CancellationToken cancellationToken = default)
-        {
-            var snsClient = new AmazonSimpleNotificationServiceClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
-
-            var publishResponse = await snsClient.PublishAsync(_options.TopicARN, new Message<T>
-            {
-                Data = message,
-                MetaData = metaData,
-            }.SerializeObject());
-        }
+            Data = message,
+            MetaData = metaData,
+        }.SerializeObject());
     }
 }

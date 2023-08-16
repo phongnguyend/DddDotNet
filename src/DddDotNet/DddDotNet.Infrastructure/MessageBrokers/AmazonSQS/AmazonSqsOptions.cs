@@ -1,13 +1,12 @@
-﻿namespace DddDotNet.Infrastructure.MessageBrokers.AmazonSQS
+﻿namespace DddDotNet.Infrastructure.MessageBrokers.AmazonSQS;
+
+public class AmazonSqsOptions
 {
-    public class AmazonSqsOptions
-    {
-        public string AccessKeyID { get; set; }
+    public string AccessKeyID { get; set; }
 
-        public string SecretAccessKey { get; set; }
+    public string SecretAccessKey { get; set; }
 
-        public string QueueUrl { get; set; }
+    public string QueueUrl { get; set; }
 
-        public string RegionEndpoint { get; set; }
-    }
+    public string RegionEndpoint { get; set; }
 }

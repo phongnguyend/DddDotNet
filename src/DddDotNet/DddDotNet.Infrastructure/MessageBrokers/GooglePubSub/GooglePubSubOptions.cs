@@ -1,13 +1,12 @@
-﻿namespace DddDotNet.Infrastructure.MessageBrokers.GooglePubSub
+﻿namespace DddDotNet.Infrastructure.MessageBrokers.GooglePubSub;
+
+public class GooglePubSubOptions
 {
-    public class GooglePubSubOptions
-    {
-        public string CredentialFilePath { get; set; }
+    public string CredentialFilePath { get; set; }
 
-        public string ProjectId { get; set; }
+    public string ProjectId { get; set; }
 
-        public string TopicId { get; set; }
+    public string TopicId { get; set; }
 
-        public string SubscriptionId { get; set; }
-    }
+    public string SubscriptionId { get; set; }
 }

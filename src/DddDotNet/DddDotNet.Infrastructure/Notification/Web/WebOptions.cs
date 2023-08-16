@@ -1,21 +1,20 @@
 ﻿using DddDotNet.Infrastructure.Notification.Web.SignalR;
 
-namespace DddDotNet.Infrastructure.Notification.Web
+namespace DddDotNet.Infrastructure.Notification.Web;
+
+public class WebOptions
 {
-    public class WebOptions
+    public string Provider { get; set; }
+
+    public SignalROptions SignalR { get; set; }
+
+    public bool UsedFake()
     {
-        public string Provider { get; set; }
+        return Provider == "Fake";
+    }
 
-        public SignalROptions SignalR { get; set; }
-
-        public bool UsedFake()
-        {
-            return Provider == "Fake";
-        }
-
-        public bool UsedSignalR()
-        {
-            return Provider == "SignalR";
-        }
+    public bool UsedSignalR()
+    {
+        return Provider == "SignalR";
     }
 }

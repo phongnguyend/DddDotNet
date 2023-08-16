@@ -6,57 +6,56 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.Notification.Email.Amazon
+namespace DddDotNet.Infrastructure.Notification.Email.Amazon;
+
+public class AmazonSesNotification : IEmailNotification
 {
-    public class AmazonSesNotification : IEmailNotification
+    private readonly AmazonSesOptions _options;
+
+    public AmazonSesNotification(AmazonSesOptions options)
     {
-        private readonly AmazonSesOptions _options;
+        _options = options;
+    }
 
-        public AmazonSesNotification(AmazonSesOptions options)
+    public async Task SendAsync(IEmailMessage emailMessage, CancellationToken cancellationToken = default)
+    {
+        var client = new AmazonSimpleEmailServiceClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
+
+        var sendRequest = new SendEmailRequest
         {
-            _options = options;
-        }
-
-        public async Task SendAsync(IEmailMessage emailMessage, CancellationToken cancellationToken = default)
-        {
-            var client = new AmazonSimpleEmailServiceClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
-
-            var sendRequest = new SendEmailRequest
+            Source = emailMessage.From,
+            Destination = new Destination
             {
-                Source = emailMessage.From,
-                Destination = new Destination
+                ToAddresses = emailMessage.Tos?.Split(';').Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToList(),
+            },
+            Message = new Message
+            {
+                Subject = new Content(emailMessage.Subject),
+                Body = new Body
                 {
-                    ToAddresses = emailMessage.Tos?.Split(';').Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToList(),
-                },
-                Message = new Message
-                {
-                    Subject = new Content(emailMessage.Subject),
-                    Body = new Body
+                    Html = new Content
                     {
-                        Html = new Content
-                        {
-                            Charset = "UTF-8",
-                            Data = emailMessage.Body,
-                        },
-                        Text = new Content
-                        {
-                            Charset = "UTF-8",
-                            Data = emailMessage.Body,
-                        },
+                        Charset = "UTF-8",
+                        Data = emailMessage.Body,
+                    },
+                    Text = new Content
+                    {
+                        Charset = "UTF-8",
+                        Data = emailMessage.Body,
                     },
                 },
-            };
+            },
+        };
 
-            var sendEmailResponse = await client.SendEmailAsync(sendRequest);
+        var sendEmailResponse = await client.SendEmailAsync(sendRequest);
 
-            if (sendEmailResponse?.HttpStatusCode == HttpStatusCode.OK && !string.IsNullOrWhiteSpace(sendEmailResponse?.MessageId))
-            {
-                // Succeeded
-            }
-            else
-            {
-                // Failed
-            }
+        if (sendEmailResponse?.HttpStatusCode == HttpStatusCode.OK && !string.IsNullOrWhiteSpace(sendEmailResponse?.MessageId))
+        {
+            // Succeeded
+        }
+        else
+        {
+            // Failed
         }
     }
 }

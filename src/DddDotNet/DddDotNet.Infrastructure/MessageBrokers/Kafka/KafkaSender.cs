@@ -4,37 +4,36 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.MessageBrokers.Kafka
+namespace DddDotNet.Infrastructure.MessageBrokers.Kafka;
+
+public class KafkaSender<T> : IMessageSender<T>, IDisposable
 {
-    public class KafkaSender<T> : IMessageSender<T>, IDisposable
+    private readonly string _topic;
+    private readonly IProducer<Null, string> _producer;
+
+    public KafkaSender(string bootstrapServers, string topic)
     {
-        private readonly string _topic;
-        private readonly IProducer<Null, string> _producer;
+        _topic = topic;
 
-        public KafkaSender(string bootstrapServers, string topic)
+        var config = new ProducerConfig { BootstrapServers = bootstrapServers };
+        _producer = new ProducerBuilder<Null, string>(config).Build();
+    }
+
+    public void Dispose()
+    {
+        _producer.Flush(TimeSpan.FromSeconds(10));
+        _producer.Dispose();
+    }
+
+    public async Task SendAsync(T message, MetaData metaData, CancellationToken cancellationToken = default)
+    {
+        _ = await _producer.ProduceAsync(_topic, new Message<Null, string>
         {
-            _topic = topic;
-
-            var config = new ProducerConfig { BootstrapServers = bootstrapServers };
-            _producer = new ProducerBuilder<Null, string>(config).Build();
-        }
-
-        public void Dispose()
-        {
-            _producer.Flush(TimeSpan.FromSeconds(10));
-            _producer.Dispose();
-        }
-
-        public async Task SendAsync(T message, MetaData metaData, CancellationToken cancellationToken = default)
-        {
-            _ = await _producer.ProduceAsync(_topic, new Message<Null, string>
+            Value = new Message<T>
             {
-                Value = new Message<T>
-                {
-                    Data = message,
-                    MetaData = metaData,
-                }.SerializeObject(),
-            }, cancellationToken);
-        }
+                Data = message,
+                MetaData = metaData,
+            }.SerializeObject(),
+        }, cancellationToken);
     }
 }

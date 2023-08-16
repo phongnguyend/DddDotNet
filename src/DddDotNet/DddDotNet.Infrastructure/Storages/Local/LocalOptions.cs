@@ -1,7 +1,6 @@
-﻿namespace DddDotNet.Infrastructure.Storages.Local
+﻿namespace DddDotNet.Infrastructure.Storages.Local;
+
+public class LocalOptions
 {
-    public class LocalOptions
-    {
-        public string Path { get; set; }
-    }
+    public string Path { get; set; }
 }

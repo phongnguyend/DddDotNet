@@ -6,44 +6,43 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.Storages.Sftp
+namespace DddDotNet.Infrastructure.Storages.Sftp;
+
+public class SftpStorageHealthCheck : IHealthCheck
 {
-    public class SftpStorageHealthCheck : IHealthCheck
+    private readonly SftpOptions _options;
+
+    public SftpStorageHealthCheck(SftpOptions options)
     {
-        private readonly SftpOptions _options;
+        _options = options;
+    }
 
-        public SftpStorageHealthCheck(SftpOptions options)
+    public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default(CancellationToken))
+    {
+        try
         {
-            _options = options;
-        }
+            var fileName = _options.Path + $"HealthCheck_{DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss")}_{Guid.NewGuid()}.txt";
 
-        public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default(CancellationToken))
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes($"HealthCheck{DateTime.Now}"));
+            using var sftpClient = GetSftpClient();
+            sftpClient.Connect();
+            sftpClient.UploadFile(stream, fileName, canOverride: true);
+            sftpClient.DeleteFile(fileName);
+
+            return Task.FromResult(HealthCheckResult.Healthy());
+        }
+        catch (Exception exception)
         {
-            try
-            {
-                var fileName = _options.Path + $"HealthCheck_{DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss")}_{Guid.NewGuid()}.txt";
-
-                using var stream = new MemoryStream(Encoding.UTF8.GetBytes($"HealthCheck{DateTime.Now}"));
-                using var sftpClient = GetSftpClient();
-                sftpClient.Connect();
-                sftpClient.UploadFile(stream, fileName, canOverride: true);
-                sftpClient.DeleteFile(fileName);
-
-                return Task.FromResult(HealthCheckResult.Healthy());
-            }
-            catch (Exception exception)
-            {
-                return Task.FromResult(new HealthCheckResult(context.Registration.FailureStatus, exception: exception));
-            }
+            return Task.FromResult(new HealthCheckResult(context.Registration.FailureStatus, exception: exception));
         }
+    }
 
-        private SftpClient GetSftpClient()
-        {
-            var connectionInfo = new ConnectionInfo(_options.Host,
-                _options.UserName,
-                new PasswordAuthenticationMethod(_options.UserName, _options.Password));
-            var client = new SftpClient(connectionInfo);
-            return client;
-        }
+    private SftpClient GetSftpClient()
+    {
+        var connectionInfo = new ConnectionInfo(_options.Host,
+            _options.UserName,
+            new PasswordAuthenticationMethod(_options.UserName, _options.Password));
+        var client = new SftpClient(connectionInfo);
+        return client;
     }
 }

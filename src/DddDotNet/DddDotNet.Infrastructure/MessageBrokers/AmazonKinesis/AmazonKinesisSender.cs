@@ -7,31 +7,30 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.MessageBrokers.AmazonKinesis
+namespace DddDotNet.Infrastructure.MessageBrokers.AmazonKinesis;
+
+public class AmazonKinesisSender<T> : IMessageSender<T>
 {
-    public class AmazonKinesisSender<T> : IMessageSender<T>
+    private readonly AmazonKinesisOptions _options;
+
+    public AmazonKinesisSender(AmazonKinesisOptions options)
     {
-        private readonly AmazonKinesisOptions _options;
+        _options = options;
+    }
 
-        public AmazonKinesisSender(AmazonKinesisOptions options)
+    public async Task SendAsync(T message, MetaData metaData = null, CancellationToken cancellationToken = default)
+    {
+        var kinesisClient = new AmazonKinesisClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
+
+        var putRecordReponse = await kinesisClient.PutRecordAsync(new PutRecordRequest
         {
-            _options = options;
-        }
-
-        public async Task SendAsync(T message, MetaData metaData = null, CancellationToken cancellationToken = default)
-        {
-            var kinesisClient = new AmazonKinesisClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
-
-            var putRecordReponse = await kinesisClient.PutRecordAsync(new PutRecordRequest
+            StreamName = _options.StreamName,
+            Data = new MemoryStream(new Message<T>
             {
-                StreamName = _options.StreamName,
-                Data = new MemoryStream(new Message<T>
-                {
-                    Data = message,
-                    MetaData = metaData,
-                }.GetBytes()),
-                PartitionKey = $"PartitionKey-{Guid.NewGuid()}",
-            });
-        }
+                Data = message,
+                MetaData = metaData,
+            }.GetBytes()),
+            PartitionKey = $"PartitionKey-{Guid.NewGuid()}",
+        });
     }
 }

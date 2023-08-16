@@ -7,75 +7,74 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace DddDotNet.IntegrationTests.Infrastructure.Storages
+namespace DddDotNet.IntegrationTests.Infrastructure.Storages;
+
+public class SftpStorageManagerTests
 {
-    public class SftpStorageManagerTests
+    SftpOptions _options = new SftpOptions();
+
+    public SftpStorageManagerTests()
     {
-        SftpOptions _options = new SftpOptions();
+        var config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .AddUserSecrets("09f024f8-e8d1-4b78-9ddd-da941692e8fa")
+            .Build();
 
-        public SftpStorageManagerTests()
+        config.GetSection("Storage:Sftp").Bind(_options);
+    }
+
+    [Fact]
+    public async Task CreateAsync_Success()
+    {
+        using SftpStorageManager sftpStorageManager = new SftpStorageManager(_options);
+
+        var fileEntry = new FileEntry
         {
-            var config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .AddUserSecrets("09f024f8-e8d1-4b78-9ddd-da941692e8fa")
-                .Build();
+            FileLocation = DateTime.Now.ToString("yyyy/MM/dd") + "/" + Guid.NewGuid()
+        };
 
-            config.GetSection("Storage:Sftp").Bind(_options);
-        }
+        var fileStream = new MemoryStream(Encoding.UTF8.GetBytes("Test"));
 
-        [Fact]
-        public async Task CreateAsync_Success()
+        await sftpStorageManager.CreateAsync(fileEntry, fileStream);
+
+        var content1 = Encoding.UTF8.GetString(await sftpStorageManager.ReadAsync(fileEntry));
+
+        fileStream = new MemoryStream(Encoding.UTF8.GetBytes("Test2"));
+
+        await sftpStorageManager.CreateAsync(fileEntry, fileStream);
+
+        var content2 = Encoding.UTF8.GetString(await sftpStorageManager.ReadAsync(fileEntry));
+
+        await sftpStorageManager.ArchiveAsync(fileEntry);
+
+        await sftpStorageManager.UnArchiveAsync(fileEntry);
+
+        var path = Path.GetTempFileName();
+        await sftpStorageManager.DownloadAsync(fileEntry, path);
+        var content3 = File.ReadAllText(path);
+        File.Delete(path);
+
+        path = Path.GetTempFileName();
+        using (var tempFileStream = File.OpenWrite(path))
         {
-            using SftpStorageManager sftpStorageManager = new SftpStorageManager(_options);
-
-            var fileEntry = new FileEntry
-            {
-                FileLocation = DateTime.Now.ToString("yyyy/MM/dd") + "/" + Guid.NewGuid()
-            };
-
-            var fileStream = new MemoryStream(Encoding.UTF8.GetBytes("Test"));
-
-            await sftpStorageManager.CreateAsync(fileEntry, fileStream);
-
-            var content1 = Encoding.UTF8.GetString(await sftpStorageManager.ReadAsync(fileEntry));
-
-            fileStream = new MemoryStream(Encoding.UTF8.GetBytes("Test2"));
-
-            await sftpStorageManager.CreateAsync(fileEntry, fileStream);
-
-            var content2 = Encoding.UTF8.GetString(await sftpStorageManager.ReadAsync(fileEntry));
-
-            await sftpStorageManager.ArchiveAsync(fileEntry);
-
-            await sftpStorageManager.UnArchiveAsync(fileEntry);
-
-            var path = Path.GetTempFileName();
-            await sftpStorageManager.DownloadAsync(fileEntry, path);
-            var content3 = File.ReadAllText(path);
-            File.Delete(path);
-
-            path = Path.GetTempFileName();
-            using (var tempFileStream = File.OpenWrite(path))
-            {
-                await sftpStorageManager.DownloadAsync(fileEntry, tempFileStream);
-            }
-            var content4 = File.ReadAllText(path);
-            File.Delete(path);
-
-            await sftpStorageManager.DeleteAsync(fileEntry);
-
-            Assert.Equal("Test", content1);
-            Assert.Equal("Test2", content2);
-            Assert.Equal("Test2", content3);
-            Assert.Equal("Test2", content4);
+            await sftpStorageManager.DownloadAsync(fileEntry, tempFileStream);
         }
+        var content4 = File.ReadAllText(path);
+        File.Delete(path);
 
-        [Fact]
-        public async Task HealthCheck_Success()
-        {
-            var healthCheck = new SftpStorageHealthCheck(_options);
-            var checkResult = await healthCheck.CheckHealthAsync(null);
-            Assert.Equal(HealthStatus.Healthy, checkResult.Status);
-        }
+        await sftpStorageManager.DeleteAsync(fileEntry);
+
+        Assert.Equal("Test", content1);
+        Assert.Equal("Test2", content2);
+        Assert.Equal("Test2", content3);
+        Assert.Equal("Test2", content4);
+    }
+
+    [Fact]
+    public async Task HealthCheck_Success()
+    {
+        var healthCheck = new SftpStorageHealthCheck(_options);
+        var checkResult = await healthCheck.CheckHealthAsync(null);
+        Assert.Equal(HealthStatus.Healthy, checkResult.Status);
     }
 }

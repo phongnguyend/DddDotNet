@@ -6,35 +6,34 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.Notification.Email.SendGrid
+namespace DddDotNet.Infrastructure.Notification.Email.SendGrid;
+
+public class SendGridEmailNotification : IEmailNotification
 {
-    public class SendGridEmailNotification : IEmailNotification
+    private readonly SendGridOptions _options;
+
+    public SendGridEmailNotification(SendGridOptions options)
     {
-        private readonly SendGridOptions _options;
+        _options = options;
+    }
 
-        public SendGridEmailNotification(SendGridOptions options)
+    public async Task SendAsync(IEmailMessage emailMessage, CancellationToken cancellationToken = default)
+    {
+        var client = new SendGridClient(_options.ApiKey);
+        var from = new EmailAddress(!string.IsNullOrWhiteSpace(_options.OverrideFrom) ? _options.OverrideFrom : emailMessage.From);
+
+        var tos = (!string.IsNullOrWhiteSpace(_options.OverrideTos) ? _options.OverrideTos : emailMessage.Tos)?.Split(';')
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => new EmailAddress(x))
+            .ToList();
+
+        var msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, tos, emailMessage.Subject, string.Empty, emailMessage.Body, showAllRecipients: true);
+
+        var response = await client.SendEmailAsync(msg, cancellationToken);
+
+        if (response.StatusCode != HttpStatusCode.Accepted)
         {
-            _options = options;
-        }
-
-        public async Task SendAsync(IEmailMessage emailMessage, CancellationToken cancellationToken = default)
-        {
-            var client = new SendGridClient(_options.ApiKey);
-            var from = new EmailAddress(!string.IsNullOrWhiteSpace(_options.OverrideFrom) ? _options.OverrideFrom : emailMessage.From);
-
-            var tos = (!string.IsNullOrWhiteSpace(_options.OverrideTos) ? _options.OverrideTos : emailMessage.Tos)?.Split(';')
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .Select(x => new EmailAddress(x))
-                .ToList();
-
-            var msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, tos, emailMessage.Subject, string.Empty, emailMessage.Body, showAllRecipients: true);
-
-            var response = await client.SendEmailAsync(msg, cancellationToken);
-
-            if (response.StatusCode != HttpStatusCode.Accepted)
-            {
-                throw new Exception(response.StatusCode.ToString());
-            }
+            throw new Exception(response.StatusCode.ToString());
         }
     }
 }

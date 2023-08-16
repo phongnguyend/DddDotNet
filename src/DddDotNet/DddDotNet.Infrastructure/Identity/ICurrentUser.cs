@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace DddDotNet.Infrastructure.Identity
-{
-    public interface ICurrentUser
-    {
-        bool IsAuthenticated { get; }
+namespace DddDotNet.Infrastructure.Identity;
 
-        Guid UserId { get; }
-    }
+public interface ICurrentUser
+{
+    bool IsAuthenticated { get; }
+
+    Guid UserId { get; }
 }

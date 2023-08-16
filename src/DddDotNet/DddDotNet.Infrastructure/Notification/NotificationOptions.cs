@@ -2,14 +2,13 @@
 using DddDotNet.Infrastructure.Notification.Sms;
 using DddDotNet.Infrastructure.Notification.Web;
 
-namespace DddDotNet.Infrastructure.Notification
+namespace DddDotNet.Infrastructure.Notification;
+
+public class NotificationOptions
 {
-    public class NotificationOptions
-    {
-        public EmailOptions Email { get; set; }
+    public EmailOptions Email { get; set; }
 
-        public SmsOptions Sms { get; set; }
+    public SmsOptions Sms { get; set; }
 
-        public WebOptions Web { get; set; }
-    }
+    public WebOptions Web { get; set; }
 }

@@ -7,37 +7,36 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.MessageBrokers.AmazonSQS
+namespace DddDotNet.Infrastructure.MessageBrokers.AmazonSQS;
+
+public class AmazonSqsHealthCheck : IHealthCheck
 {
-    public class AmazonSqsHealthCheck : IHealthCheck
+    private readonly AmazonSqsOptions _options;
+
+    public AmazonSqsHealthCheck(AmazonSqsOptions options)
     {
-        private readonly AmazonSqsOptions _options;
+        _options = options;
+    }
 
-        public AmazonSqsHealthCheck(AmazonSqsOptions options)
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    {
+        try
         {
-            _options = options;
+            var sqsClient = new AmazonSQSClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
+            var attributes = await sqsClient.GetQueueAttributesAsync(_options.QueueUrl, new List<string> { "All" }, cancellationToken);
+
+            if (attributes?.HttpStatusCode == HttpStatusCode.OK)
+            {
+                return HealthCheckResult.Healthy();
+            }
+            else
+            {
+                return new HealthCheckResult(context.Registration.FailureStatus, $"HttpStatusCode: {attributes?.HttpStatusCode}");
+            }
         }
-
-        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+        catch (Exception ex)
         {
-            try
-            {
-                var sqsClient = new AmazonSQSClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
-                var attributes = await sqsClient.GetQueueAttributesAsync(_options.QueueUrl, new List<string> { "All" }, cancellationToken);
-
-                if (attributes?.HttpStatusCode == HttpStatusCode.OK)
-                {
-                    return HealthCheckResult.Healthy();
-                }
-                else
-                {
-                    return new HealthCheckResult(context.Registration.FailureStatus, $"HttpStatusCode: {attributes?.HttpStatusCode}");
-                }
-            }
-            catch (Exception ex)
-            {
-                return new HealthCheckResult(context.Registration.FailureStatus, exception: ex);
-            }
+            return new HealthCheckResult(context.Registration.FailureStatus, exception: ex);
         }
     }
 }

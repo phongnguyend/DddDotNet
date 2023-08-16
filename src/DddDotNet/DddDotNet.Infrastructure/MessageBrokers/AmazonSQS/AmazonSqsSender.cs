@@ -4,26 +4,25 @@ using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.MessageBrokers.AmazonSQS
+namespace DddDotNet.Infrastructure.MessageBrokers.AmazonSQS;
+
+public class AmazonSqsSender<T> : IMessageSender<T>
 {
-    public class AmazonSqsSender<T> : IMessageSender<T>
+    private readonly AmazonSqsOptions _options;
+
+    public AmazonSqsSender(AmazonSqsOptions options)
     {
-        private readonly AmazonSqsOptions _options;
+        _options = options;
+    }
 
-        public AmazonSqsSender(AmazonSqsOptions options)
+    public async Task SendAsync(T message, MetaData metaData = null, CancellationToken cancellationToken = default)
+    {
+        var sqsClient = new AmazonSQSClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
+
+        var responseSendMsg = await sqsClient.SendMessageAsync(_options.QueueUrl, new Message<T>
         {
-            _options = options;
-        }
-
-        public async Task SendAsync(T message, MetaData metaData = null, CancellationToken cancellationToken = default)
-        {
-            var sqsClient = new AmazonSQSClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
-
-            var responseSendMsg = await sqsClient.SendMessageAsync(_options.QueueUrl, new Message<T>
-            {
-                Data = message,
-                MetaData = metaData,
-            }.SerializeObject());
-        }
+            Data = message,
+            MetaData = metaData,
+        }.SerializeObject());
     }
 }

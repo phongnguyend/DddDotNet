@@ -7,117 +7,116 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.Storages.Amazon
+namespace DddDotNet.Infrastructure.Storages.Amazon;
+
+public class AmazonS3StorageManager : IFileStorageManager
 {
-    public class AmazonS3StorageManager : IFileStorageManager
+    private readonly IAmazonS3 _client;
+    private readonly AmazonOptions _options;
+
+    public AmazonS3StorageManager(AmazonOptions options)
     {
-        private readonly IAmazonS3 _client;
-        private readonly AmazonOptions _options;
+        _client = new AmazonS3Client(options.AccessKeyID, options.SecretAccessKey, RegionEndpoint.GetBySystemName(options.RegionEndpoint));
+        _options = options;
+    }
 
-        public AmazonS3StorageManager(AmazonOptions options)
+    private string GetKey(IFileEntry fileEntry)
+    {
+        return _options.Path + fileEntry.FileLocation;
+    }
+
+    public async Task CreateAsync(IFileEntry fileEntry, Stream stream, CancellationToken cancellationToken = default)
+    {
+        var fileTransferUtility = new TransferUtility(_client);
+
+        var uploadRequest = new TransferUtilityUploadRequest
         {
-            _client = new AmazonS3Client(options.AccessKeyID, options.SecretAccessKey, RegionEndpoint.GetBySystemName(options.RegionEndpoint));
-            _options = options;
-        }
+            InputStream = stream,
+            Key = GetKey(fileEntry),
+            BucketName = _options.BucketName,
+            CannedACL = S3CannedACL.NoACL,
+        };
 
-        private string GetKey(IFileEntry fileEntry)
+        var clientRequestedTime = DateTimeOffset.Now.ToString();
+        uploadRequest.Metadata["client-requested-time"] = clientRequestedTime;
+
+        await fileTransferUtility.UploadAsync(uploadRequest, cancellationToken);
+
+        var metadataResponse = await _client.GetObjectMetadataAsync(_options.BucketName, uploadRequest.Key, cancellationToken);
+        var checkClientRequestedTime = metadataResponse?.Metadata["client-requested-time"];
+        if (checkClientRequestedTime != clientRequestedTime)
         {
-            return _options.Path + fileEntry.FileLocation;
+            throw new Exception("Invalid Data");
         }
+    }
 
-        public async Task CreateAsync(IFileEntry fileEntry, Stream stream, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
+    {
+        await _client.DeleteObjectAsync(_options.BucketName, GetKey(fileEntry), cancellationToken);
+    }
+
+    public async Task<byte[]> ReadAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
+    {
+        using var stream = new MemoryStream();
+        await DownloadAsync(fileEntry, stream, cancellationToken);
+        return stream.ToArray();
+    }
+
+    public async Task DownloadAsync(IFileEntry fileEntry, string path, CancellationToken cancellationToken = default)
+    {
+        var request = new TransferUtilityDownloadRequest
         {
-            var fileTransferUtility = new TransferUtility(_client);
+            BucketName = _options.BucketName,
+            Key = GetKey(fileEntry),
+            FilePath = path,
+        };
 
-            var uploadRequest = new TransferUtilityUploadRequest
-            {
-                InputStream = stream,
-                Key = GetKey(fileEntry),
-                BucketName = _options.BucketName,
-                CannedACL = S3CannedACL.NoACL,
-            };
+        var fileTransferUtility = new TransferUtility(_client);
+        await fileTransferUtility.DownloadAsync(request, cancellationToken);
+    }
 
-            var clientRequestedTime = DateTimeOffset.Now.ToString();
-            uploadRequest.Metadata["client-requested-time"] = clientRequestedTime;
-
-            await fileTransferUtility.UploadAsync(uploadRequest, cancellationToken);
-
-            var metadataResponse = await _client.GetObjectMetadataAsync(_options.BucketName, uploadRequest.Key, cancellationToken);
-            var checkClientRequestedTime = metadataResponse?.Metadata["client-requested-time"];
-            if (checkClientRequestedTime != clientRequestedTime)
-            {
-                throw new Exception("Invalid Data");
-            }
-        }
-
-        public async Task DeleteAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
+    public async Task DownloadAsync(IFileEntry fileEntry, Stream stream, CancellationToken cancellationToken = default)
+    {
+        var request = new GetObjectRequest
         {
-            await _client.DeleteObjectAsync(_options.BucketName, GetKey(fileEntry), cancellationToken);
-        }
+            BucketName = _options.BucketName,
+            Key = GetKey(fileEntry),
+        };
 
-        public async Task<byte[]> ReadAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
+        using var response = await _client.GetObjectAsync(request, cancellationToken);
+        using var responseStream = response.ResponseStream;
+        await responseStream.CopyToAsync(stream, cancellationToken);
+    }
+
+    public async Task ArchiveAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
+    {
+        var copy = new CopyObjectRequest
         {
-            using var stream = new MemoryStream();
-            await DownloadAsync(fileEntry, stream, cancellationToken);
-            return stream.ToArray();
-        }
+            SourceBucket = _options.BucketName,
+            SourceKey = GetKey(fileEntry),
+            DestinationBucket = _options.BucketName,
+            DestinationKey = GetKey(fileEntry),
+            StorageClass = S3StorageClass.StandardInfrequentAccess,
+        };
 
-        public async Task DownloadAsync(IFileEntry fileEntry, string path, CancellationToken cancellationToken = default)
+        await _client.CopyObjectAsync(copy, cancellationToken);
+    }
+
+    public async Task UnArchiveAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
+    {
+        var copy = new CopyObjectRequest
         {
-            var request = new TransferUtilityDownloadRequest
-            {
-                BucketName = _options.BucketName,
-                Key = GetKey(fileEntry),
-                FilePath = path,
-            };
+            SourceBucket = _options.BucketName,
+            SourceKey = GetKey(fileEntry),
+            DestinationBucket = _options.BucketName,
+            DestinationKey = GetKey(fileEntry),
+            StorageClass = S3StorageClass.Standard,
+        };
 
-            var fileTransferUtility = new TransferUtility(_client);
-            await fileTransferUtility.DownloadAsync(request, cancellationToken);
-        }
+        await _client.CopyObjectAsync(copy, cancellationToken);
+    }
 
-        public async Task DownloadAsync(IFileEntry fileEntry, Stream stream, CancellationToken cancellationToken = default)
-        {
-            var request = new GetObjectRequest
-            {
-                BucketName = _options.BucketName,
-                Key = GetKey(fileEntry),
-            };
-
-            using var response = await _client.GetObjectAsync(request, cancellationToken);
-            using var responseStream = response.ResponseStream;
-            await responseStream.CopyToAsync(stream, cancellationToken);
-        }
-
-        public async Task ArchiveAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
-        {
-            var copy = new CopyObjectRequest
-            {
-                SourceBucket = _options.BucketName,
-                SourceKey = GetKey(fileEntry),
-                DestinationBucket = _options.BucketName,
-                DestinationKey = GetKey(fileEntry),
-                StorageClass = S3StorageClass.StandardInfrequentAccess,
-            };
-
-            await _client.CopyObjectAsync(copy, cancellationToken);
-        }
-
-        public async Task UnArchiveAsync(IFileEntry fileEntry, CancellationToken cancellationToken = default)
-        {
-            var copy = new CopyObjectRequest
-            {
-                SourceBucket = _options.BucketName,
-                SourceKey = GetKey(fileEntry),
-                DestinationBucket = _options.BucketName,
-                DestinationKey = GetKey(fileEntry),
-                StorageClass = S3StorageClass.Standard,
-            };
-
-            await _client.CopyObjectAsync(copy, cancellationToken);
-        }
-
-        public void Dispose()
-        {
-        }
+    public void Dispose()
+    {
     }
 }

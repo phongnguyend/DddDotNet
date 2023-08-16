@@ -4,39 +4,38 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.MessageBrokers.GooglePubSub
+namespace DddDotNet.Infrastructure.MessageBrokers.GooglePubSub;
+
+public class GooglePubSubHealthCheck : IHealthCheck
 {
-    public class GooglePubSubHealthCheck : IHealthCheck
+    private readonly GooglePubSubOptions _options;
+
+    public GooglePubSubHealthCheck(GooglePubSubOptions options)
     {
-        private readonly GooglePubSubOptions _options;
+        _options = options;
+        Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", _options.CredentialFilePath);
+    }
 
-        public GooglePubSubHealthCheck(GooglePubSubOptions options)
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    {
+        try
         {
-            _options = options;
-            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", _options.CredentialFilePath);
+            var publisherService = await PublisherServiceApiClient.CreateAsync(cancellationToken);
+            var topicName = new TopicName(_options.ProjectId, _options.TopicId);
+            var topic = await publisherService.GetTopicAsync(topicName, cancellationToken);
+
+            if (!string.IsNullOrWhiteSpace(_options.SubscriptionId))
+            {
+                var subscriberService = await SubscriberServiceApiClient.CreateAsync(cancellationToken);
+                var subscriptionName = new SubscriptionName(_options.ProjectId, _options.SubscriptionId);
+                var subscription = await subscriberService.GetSubscriptionAsync(subscriptionName, cancellationToken);
+            }
+
+            return HealthCheckResult.Healthy();
         }
-
-        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+        catch (Exception ex)
         {
-            try
-            {
-                var publisherService = await PublisherServiceApiClient.CreateAsync(cancellationToken);
-                var topicName = new TopicName(_options.ProjectId, _options.TopicId);
-                var topic = await publisherService.GetTopicAsync(topicName, cancellationToken);
-
-                if (!string.IsNullOrWhiteSpace(_options.SubscriptionId))
-                {
-                    var subscriberService = await SubscriberServiceApiClient.CreateAsync(cancellationToken);
-                    var subscriptionName = new SubscriptionName(_options.ProjectId, _options.SubscriptionId);
-                    var subscription = await subscriberService.GetSubscriptionAsync(subscriptionName, cancellationToken);
-                }
-
-                return HealthCheckResult.Healthy();
-            }
-            catch (Exception ex)
-            {
-                return new HealthCheckResult(context.Registration.FailureStatus, exception: ex);
-            }
+            return new HealthCheckResult(context.Registration.FailureStatus, exception: ex);
         }
     }
 }

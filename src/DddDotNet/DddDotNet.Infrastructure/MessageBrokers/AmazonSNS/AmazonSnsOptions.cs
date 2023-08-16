@@ -1,13 +1,12 @@
-﻿namespace DddDotNet.Infrastructure.MessageBrokers.AmazonSNS
+﻿namespace DddDotNet.Infrastructure.MessageBrokers.AmazonSNS;
+
+public class AmazonSnsOptions
 {
-    public class AmazonSnsOptions
-    {
-        public string AccessKeyID { get; set; }
+    public string AccessKeyID { get; set; }
 
-        public string SecretAccessKey { get; set; }
+    public string SecretAccessKey { get; set; }
 
-        public string TopicARN { get; set; }
+    public string TopicARN { get; set; }
 
-        public string RegionEndpoint { get; set; }
-    }
+    public string RegionEndpoint { get; set; }
 }

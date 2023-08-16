@@ -7,37 +7,36 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.MessageBrokers.AmazonEventBridge
+namespace DddDotNet.Infrastructure.MessageBrokers.AmazonEventBridge;
+
+public class AmazonEventBridgeHealthCheck : IHealthCheck
 {
-    public class AmazonEventBridgeHealthCheck : IHealthCheck
+    private readonly AmazonEventBridgeOptions _options;
+
+    public AmazonEventBridgeHealthCheck(AmazonEventBridgeOptions options)
     {
-        private readonly AmazonEventBridgeOptions _options;
+        _options = options;
+    }
 
-        public AmazonEventBridgeHealthCheck(AmazonEventBridgeOptions options)
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    {
+        try
         {
-            _options = options;
+            var eventBridgeClient = new AmazonEventBridgeClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
+            var endpointResponse = await eventBridgeClient.DescribeEndpointAsync(new DescribeEndpointRequest { HomeRegion = _options.RegionEndpoint, Name = _options.EndpointName }, cancellationToken);
+
+            if (endpointResponse?.HttpStatusCode == HttpStatusCode.OK)
+            {
+                return HealthCheckResult.Healthy();
+            }
+            else
+            {
+                return new HealthCheckResult(context.Registration.FailureStatus, $"HttpStatusCode: {endpointResponse?.HttpStatusCode}");
+            }
         }
-
-        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+        catch (Exception ex)
         {
-            try
-            {
-                var eventBridgeClient = new AmazonEventBridgeClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
-                var endpointResponse = await eventBridgeClient.DescribeEndpointAsync(new DescribeEndpointRequest { HomeRegion = _options.RegionEndpoint, Name = _options.EndpointName }, cancellationToken);
-
-                if (endpointResponse?.HttpStatusCode == HttpStatusCode.OK)
-                {
-                    return HealthCheckResult.Healthy();
-                }
-                else
-                {
-                    return new HealthCheckResult(context.Registration.FailureStatus, $"HttpStatusCode: {endpointResponse?.HttpStatusCode}");
-                }
-            }
-            catch (Exception ex)
-            {
-                return new HealthCheckResult(context.Registration.FailureStatus, exception: ex);
-            }
+            return new HealthCheckResult(context.Registration.FailureStatus, exception: ex);
         }
     }
 }

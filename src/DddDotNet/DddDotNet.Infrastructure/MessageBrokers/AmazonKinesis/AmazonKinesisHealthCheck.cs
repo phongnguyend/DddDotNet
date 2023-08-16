@@ -7,37 +7,36 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.MessageBrokers.AmazonKinesis
+namespace DddDotNet.Infrastructure.MessageBrokers.AmazonKinesis;
+
+public class AmazonKinesisHealthCheck : IHealthCheck
 {
-    public class AmazonKinesisHealthCheck : IHealthCheck
+    private readonly AmazonKinesisOptions _options;
+
+    public AmazonKinesisHealthCheck(AmazonKinesisOptions options)
     {
-        private readonly AmazonKinesisOptions _options;
+        _options = options;
+    }
 
-        public AmazonKinesisHealthCheck(AmazonKinesisOptions options)
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    {
+        try
         {
-            _options = options;
+            var kinesisClient = new AmazonKinesisClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
+            var shardsResponse = await kinesisClient.ListShardsAsync(new ListShardsRequest { StreamName = _options.StreamName });
+
+            if (shardsResponse?.HttpStatusCode == HttpStatusCode.OK)
+            {
+                return HealthCheckResult.Healthy();
+            }
+            else
+            {
+                return new HealthCheckResult(context.Registration.FailureStatus, $"HttpStatusCode: {shardsResponse?.HttpStatusCode}");
+            }
         }
-
-        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+        catch (Exception ex)
         {
-            try
-            {
-                var kinesisClient = new AmazonKinesisClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
-                var shardsResponse = await kinesisClient.ListShardsAsync(new ListShardsRequest { StreamName = _options.StreamName });
-
-                if (shardsResponse?.HttpStatusCode == HttpStatusCode.OK)
-                {
-                    return HealthCheckResult.Healthy();
-                }
-                else
-                {
-                    return new HealthCheckResult(context.Registration.FailureStatus, $"HttpStatusCode: {shardsResponse?.HttpStatusCode}");
-                }
-            }
-            catch (Exception ex)
-            {
-                return new HealthCheckResult(context.Registration.FailureStatus, exception: ex);
-            }
+            return new HealthCheckResult(context.Registration.FailureStatus, exception: ex);
         }
     }
 }

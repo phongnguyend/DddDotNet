@@ -2,18 +2,17 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.HttpMessageHandlers
-{
-    public class DebuggingHandler : DelegatingHandler
-    {
-        public DebuggingHandler()
-        {
-        }
+namespace DddDotNet.Infrastructure.HttpMessageHandlers;
 
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            var response = await base.SendAsync(request, cancellationToken);
-            return response;
-        }
+public class DebuggingHandler : DelegatingHandler
+{
+    public DebuggingHandler()
+    {
+    }
+
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        var response = await base.SendAsync(request, cancellationToken);
+        return response;
     }
 }

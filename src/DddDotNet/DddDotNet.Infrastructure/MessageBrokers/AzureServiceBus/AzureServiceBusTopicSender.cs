@@ -3,29 +3,28 @@ using DddDotNet.Domain.Infrastructure.MessageBrokers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus
+namespace DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus;
+
+public class AzureServiceBusTopicSender<T> : IMessageSender<T>
 {
-    public class AzureServiceBusTopicSender<T> : IMessageSender<T>
+    private readonly string _connectionString;
+    private readonly string _topicName;
+
+    public AzureServiceBusTopicSender(string connectionString, string topicName)
     {
-        private readonly string _connectionString;
-        private readonly string _topicName;
+        _connectionString = connectionString;
+        _topicName = topicName;
+    }
 
-        public AzureServiceBusTopicSender(string connectionString, string topicName)
+    public async Task SendAsync(T message, MetaData metaData, CancellationToken cancellationToken = default)
+    {
+        await using var client = new ServiceBusClient(_connectionString);
+        ServiceBusSender sender = client.CreateSender(_topicName);
+        var serviceBusMessage = new ServiceBusMessage(new Message<T>
         {
-            _connectionString = connectionString;
-            _topicName = topicName;
-        }
-
-        public async Task SendAsync(T message, MetaData metaData, CancellationToken cancellationToken = default)
-        {
-            await using var client = new ServiceBusClient(_connectionString);
-            ServiceBusSender sender = client.CreateSender(_topicName);
-            var serviceBusMessage = new ServiceBusMessage(new Message<T>
-            {
-                Data = message,
-                MetaData = metaData,
-            }.GetBytes());
-            await sender.SendMessageAsync(serviceBusMessage, cancellationToken);
-        }
+            Data = message,
+            MetaData = metaData,
+        }.GetBytes());
+        await sender.SendMessageAsync(serviceBusMessage, cancellationToken);
     }
 }

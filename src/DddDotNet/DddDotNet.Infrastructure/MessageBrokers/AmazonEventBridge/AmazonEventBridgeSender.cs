@@ -6,38 +6,37 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.MessageBrokers.AmazonEventBridge
+namespace DddDotNet.Infrastructure.MessageBrokers.AmazonEventBridge;
+
+public class AmazonEventBridgeSender<T> : IMessageSender<T>
 {
-    public class AmazonEventBridgeSender<T> : IMessageSender<T>
+    private readonly AmazonEventBridgeOptions _options;
+
+    public AmazonEventBridgeSender(AmazonEventBridgeOptions options)
     {
-        private readonly AmazonEventBridgeOptions _options;
+        _options = options;
+    }
 
-        public AmazonEventBridgeSender(AmazonEventBridgeOptions options)
+    public async Task SendAsync(T message, MetaData metaData = null, CancellationToken cancellationToken = default)
+    {
+        var eventBridgeClient = new AmazonEventBridgeClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
+
+        var putEventsReponse = await eventBridgeClient.PutEventsAsync(new PutEventsRequest
         {
-            _options = options;
-        }
-
-        public async Task SendAsync(T message, MetaData metaData = null, CancellationToken cancellationToken = default)
-        {
-            var eventBridgeClient = new AmazonEventBridgeClient(_options.AccessKeyID, _options.SecretAccessKey, RegionEndpoint.GetBySystemName(_options.RegionEndpoint));
-
-            var putEventsReponse = await eventBridgeClient.PutEventsAsync(new PutEventsRequest
+            EndpointId = _options.EndpointId,
+            Entries = new List<PutEventsRequestEntry>
             {
-                EndpointId = _options.EndpointId,
-                Entries = new List<PutEventsRequestEntry>
+                new PutEventsRequestEntry
                 {
-                    new PutEventsRequestEntry
+                    Detail = new Message<T>
                     {
-                        Detail = new Message<T>
-                        {
-                            Data = message,
-                            MetaData = metaData,
-                        }.SerializeObject(),
-                        DetailType = typeof(T).FullName,
-                        Source = "DddDotNet",
-                    },
+                        Data = message,
+                        MetaData = metaData,
+                    }.SerializeObject(),
+                    DetailType = typeof(T).FullName,
+                    Source = "DddDotNet",
                 },
-            });
-        }
+            },
+        });
     }
 }

@@ -3,33 +3,32 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.Notification.Web.SignalR
+namespace DddDotNet.Infrastructure.Notification.Web.SignalR;
+
+public class SignalRNotification<T> : IWebNotification<T>
 {
-    public class SignalRNotification<T> : IWebNotification<T>
+    private readonly HubConnection _connection;
+    private readonly string _endpoint;
+    private readonly string _eventName;
+
+    public SignalRNotification(string endpoint, string hubName, string eventName)
     {
-        private readonly HubConnection _connection;
-        private readonly string _endpoint;
-        private readonly string _eventName;
+        _endpoint = endpoint + "/" + hubName;
+        _eventName = eventName;
 
-        public SignalRNotification(string endpoint, string hubName, string eventName)
+        _connection = new HubConnectionBuilder()
+                    .WithUrl(_endpoint)
+                    .AddMessagePackProtocol()
+                    .Build();
+    }
+
+    public async Task SendAsync(T message, CancellationToken cancellationToken = default)
+    {
+        if (_connection.State != HubConnectionState.Connected)
         {
-            _endpoint = endpoint + "/" + hubName;
-            _eventName = eventName;
-
-            _connection = new HubConnectionBuilder()
-                        .WithUrl(_endpoint)
-                        .AddMessagePackProtocol()
-                        .Build();
+            await _connection.StartAsync(cancellationToken);
         }
 
-        public async Task SendAsync(T message, CancellationToken cancellationToken = default)
-        {
-            if (_connection.State != HubConnectionState.Connected)
-            {
-                await _connection.StartAsync(cancellationToken);
-            }
-
-            await _connection.InvokeAsync(_eventName, message, cancellationToken);
-        }
+        await _connection.InvokeAsync(_eventName, message, cancellationToken);
     }
 }

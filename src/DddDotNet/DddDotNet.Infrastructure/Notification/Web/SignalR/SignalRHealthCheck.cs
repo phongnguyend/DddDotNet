@@ -5,38 +5,37 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DddDotNet.Infrastructure.Notification.Web.SignalR
+namespace DddDotNet.Infrastructure.Notification.Web.SignalR;
+
+public class SignalRHealthCheck : IHealthCheck
 {
-    public class SignalRHealthCheck : IHealthCheck
+    private readonly string _endPoint;
+    private readonly string _eventName;
+
+    public SignalRHealthCheck(string endPoint, string hubName, string eventName)
     {
-        private readonly string _endPoint;
-        private readonly string _eventName;
+        _endPoint = endPoint + "/" + hubName;
+        _eventName = eventName;
+    }
 
-        public SignalRHealthCheck(string endPoint, string hubName, string eventName)
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    {
+        try
         {
-            _endPoint = endPoint + "/" + hubName;
-            _eventName = eventName;
+            await using (var connection = new HubConnectionBuilder()
+                .WithUrl(_endPoint)
+                .AddMessagePackProtocol()
+                .Build())
+            {
+                await connection.StartAsync(cancellationToken);
+                await connection.StopAsync(cancellationToken);
+            }
+
+            return HealthCheckResult.Healthy();
         }
-
-        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+        catch (Exception ex)
         {
-            try
-            {
-                await using (var connection = new HubConnectionBuilder()
-                    .WithUrl(_endPoint)
-                    .AddMessagePackProtocol()
-                    .Build())
-                {
-                    await connection.StartAsync(cancellationToken);
-                    await connection.StopAsync(cancellationToken);
-                }
-
-                return HealthCheckResult.Healthy();
-            }
-            catch (Exception ex)
-            {
-                return new HealthCheckResult(context.Registration.FailureStatus, exception: ex);
-            }
+            return new HealthCheckResult(context.Registration.FailureStatus, exception: ex);
         }
     }
 }
