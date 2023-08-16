@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DddDotNet.CrossCuttingConcerns.OS
+namespace DddDotNet.CrossCuttingConcerns.DateTimes
 {
     public interface IDateTimeProvider
     {

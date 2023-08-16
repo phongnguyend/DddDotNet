@@ -1,5 +1,5 @@
-﻿using DddDotNet.CrossCuttingConcerns.OS;
-using DddDotNet.Infrastructure.OS;
+﻿using DddDotNet.CrossCuttingConcerns.DateTimes;
+using DddDotNet.Infrastructure.DateTimes;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

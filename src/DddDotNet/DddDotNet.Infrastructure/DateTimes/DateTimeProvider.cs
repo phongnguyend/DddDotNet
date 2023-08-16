@@ -1,7 +1,7 @@
-﻿using DddDotNet.CrossCuttingConcerns.OS;
+﻿using DddDotNet.CrossCuttingConcerns.DateTimes;
 using System;
 
-namespace DddDotNet.Infrastructure.OS
+namespace DddDotNet.Infrastructure.DateTimes
 {
     public class DateTimeProvider : IDateTimeProvider
     {
