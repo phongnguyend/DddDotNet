@@ -1,7 +1,6 @@
 ﻿using FirebaseAdmin;
 using FirebaseAdmin.Auth;
 using Google.Apis.Auth.OAuth2;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,13 +9,12 @@ namespace DddDotNet.Infrastructure.Identity.GoogleCloud;
 public class GoogleCloudIdentityProvider : IUserProvider
 {
     private readonly GoogleCloudIdentityOptions _options;
-    private readonly FirebaseApp _firebaseApp;
 
     public GoogleCloudIdentityProvider(GoogleCloudIdentityOptions options)
     {
         _options = options;
 
-        _firebaseApp = FirebaseApp.Create(new AppOptions()
+        FirebaseApp.Create(new AppOptions()
         {
             Credential = GoogleCredential.FromFile(_options.CredentialFilePath),
         });
