@@ -47,6 +47,7 @@
     <PackageReference Include="DinkToPdf" Version="1.0.8" />
     <PackageReference Include="EPPlus" Version="4.5.3.2" />
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
+    <PackageReference Include="FirebaseAdmin" Version="2.4.0" />
     <PackageReference Include="FluentFTP" Version="40.0.0" />
     <PackageReference Include="Google.Cloud.PubSub.V1" Version="3.2.0" />
     <PackageReference Include="Google.Cloud.Storage.V1" Version="4.1.0" />

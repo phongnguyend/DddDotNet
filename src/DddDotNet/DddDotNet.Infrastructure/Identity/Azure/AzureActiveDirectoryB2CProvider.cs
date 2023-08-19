@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace DddDotNet.Infrastructure.Identity.Azure;
 
-public class AzureActiveDirectoryB2CManager : IUserManager
+public class AzureActiveDirectoryB2CProvider : IUserProvider
 {
     private readonly AzureAdB2COptions _options;
     private readonly GraphServiceClient _graphServiceClient;
 
-    public AzureActiveDirectoryB2CManager(AzureAdB2COptions options)
+    public AzureActiveDirectoryB2CProvider(AzureAdB2COptions options)
     {
         _options = options;
 

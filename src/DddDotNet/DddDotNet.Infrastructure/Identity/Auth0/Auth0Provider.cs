@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace DddDotNet.Infrastructure.Identity.Auth0;
 
-public class Auth0Manager : IUserManager
+public class Auth0Provider : IUserProvider
 {
     private readonly Auth0Options _options;
     private HttpClient _httpClient = new HttpClient();
 
-    public Auth0Manager(Auth0Options options)
+    public Auth0Provider(Auth0Options options)
     {
         _options = options;
     }

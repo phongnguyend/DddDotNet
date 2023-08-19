@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace DddDotNet.Infrastructure.Identity;
 
-public interface IUserManager
+public interface IUserProvider
 {
     Task<IList<IUser>> GetUsersAsync();
 

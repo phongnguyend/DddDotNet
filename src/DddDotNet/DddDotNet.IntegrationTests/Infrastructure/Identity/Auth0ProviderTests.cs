@@ -1,5 +1,5 @@
 ﻿using DddDotNet.Infrastructure.Identity;
-using DddDotNet.Infrastructure.Identity.Azure;
+using DddDotNet.Infrastructure.Identity.Auth0;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
@@ -7,30 +7,31 @@ using Xunit;
 
 namespace DddDotNet.IntegrationTests.Infrastructure.Identity;
 
-public class AzureActiveDirectoryB2CManagerTests
+public class Auth0ProviderTests
 {
-    private readonly AzureAdB2COptions _options = new();
+    private readonly Auth0Options _options = new();
 
-    public AzureActiveDirectoryB2CManagerTests()
+    public Auth0ProviderTests()
     {
         var config = new ConfigurationBuilder()
         .AddJsonFile("appsettings.json")
         .AddUserSecrets("09f024f8-e8d1-4b78-9ddd-da941692e8fa")
         .Build();
 
-        config.GetSection("Identity:AzureActiveDirectoryB2C").Bind(_options);
+        config.GetSection("Identity:Auth0").Bind(_options);
     }
 
     [Fact]
     public async Task CreateAsync_Success()
     {
-        var sut = new AzureActiveDirectoryB2CManager(_options);
+        var sut = new Auth0Provider(_options);
 
         var users = await sut.GetUsersAsync();
 
         var newGuid = Guid.NewGuid().ToString().Replace("-", string.Empty);
         var user = new User
         {
+            Id = Guid.NewGuid().ToString(),
             Username = $"{newGuid}@gmail.com",
             Password = Guid.NewGuid().ToString(),
             FirstName = "FirstName",

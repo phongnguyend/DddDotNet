@@ -1,5 +1,5 @@
 ﻿using DddDotNet.Infrastructure.Identity;
-using DddDotNet.Infrastructure.Identity.Auth0;
+using DddDotNet.Infrastructure.Identity.GoogleCloud;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
@@ -7,24 +7,24 @@ using Xunit;
 
 namespace DddDotNet.IntegrationTests.Infrastructure.Identity;
 
-public class Auth0ManagerTests
+public class GoogleCloudIdentityProviderTests
 {
-    private readonly Auth0Options _options = new();
+    private readonly GoogleCloudIdentityOptions _options = new();
 
-    public Auth0ManagerTests()
+    public GoogleCloudIdentityProviderTests()
     {
         var config = new ConfigurationBuilder()
         .AddJsonFile("appsettings.json")
         .AddUserSecrets("09f024f8-e8d1-4b78-9ddd-da941692e8fa")
         .Build();
 
-        config.GetSection("Identity:Auth0").Bind(_options);
+        config.GetSection("Identity:GoogleCloudIdentity").Bind(_options);
     }
 
     [Fact]
     public async Task CreateAsync_Success()
     {
-        var sut = new Auth0Manager(_options);
+        var sut = new GoogleCloudIdentityProvider(_options);
 
         var users = await sut.GetUsersAsync();
 
