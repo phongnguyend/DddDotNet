@@ -49,7 +49,7 @@
   | Azure Communication | ✅ | | [/Notification/Sms/Azure](/src/DddDotNet/DddDotNet.Infrastructure/Notification/Sms/Azure) |
   | Twilio | ✅ | ✅ | [/Notification/Sms/Twilio](/src/DddDotNet/DddDotNet.Infrastructure/Notification/Sms/Twilio) |
 
-## Configuration & Secrets
+## Configuration & Secrets Providers
   | Configuration & Secrets  | Status | Health Check | Path |
   | ------------------------ | :----: | :----------: | ---- |
   | SQL Server | ✅ | | [/Configuration](/src/DddDotNet/DddDotNet.Infrastructure/Configuration) |
@@ -57,3 +57,4 @@
   | Azure App Configuration | ✅ | | [/Configuration](/src/DddDotNet/DddDotNet.Infrastructure/Configuration) |
   | Azure Key Vault | ✅ | | [/Configuration](/src/DddDotNet/DddDotNet.Infrastructure/Configuration) |
   | AWS Secrets Manager | | | [/Configuration](/src/DddDotNet/DddDotNet.Infrastructure/Configuration) |
+  | Google Cloud Secret Manager | ✅ | | [/Configuration](/src/DddDotNet/DddDotNet.Infrastructure/Configuration) |
