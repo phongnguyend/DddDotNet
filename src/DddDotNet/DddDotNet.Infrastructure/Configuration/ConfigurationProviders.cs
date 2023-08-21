@@ -24,3 +24,14 @@ public class AzureAppConfigurationOptions
 
     public string ConnectionString { get; set; }
 }
+
+public class AwsSystemsManagerOptions
+{
+    public string AccessKeyID { get; set; }
+
+    public string SecretAccessKey { get; set; }
+
+    public string ParameterPath { get; set; }
+
+    public string RegionEndpoint { get; set; }
+}

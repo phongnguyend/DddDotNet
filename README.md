@@ -57,4 +57,5 @@
   | Azure App Configuration | ✅ | | [/Configuration](/src/DddDotNet/DddDotNet.Infrastructure/Configuration) |
   | Azure Key Vault | ✅ | | [/Configuration](/src/DddDotNet/DddDotNet.Infrastructure/Configuration) |
   | AWS Secrets Manager | ✅ | | [/Configuration](/src/DddDotNet/DddDotNet.Infrastructure/Configuration) |
+  | AWS Systems Manager | ✅ | | [/Configuration](/src/DddDotNet/DddDotNet.Infrastructure/Configuration) |
   | Google Cloud Secret Manager | ✅ | | [/Configuration](/src/DddDotNet/DddDotNet.Infrastructure/Configuration) |

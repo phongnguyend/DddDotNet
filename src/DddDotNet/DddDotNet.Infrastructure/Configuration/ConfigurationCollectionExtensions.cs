@@ -1,4 +1,6 @@
-﻿using Azure.Extensions.AspNetCore.Configuration.Secrets;
+﻿using Amazon;
+using Amazon.Runtime;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Microsoft.Extensions.Configuration;
@@ -30,6 +32,17 @@ public static class ConfigurationCollectionExtensions
         {
             configurationBuilder.AddHashiCorpVault(options.HashiCorpVault);
         }
+
+        return configurationBuilder;
+    }
+
+    public static IConfigurationBuilder AddAwsSystemsManager(this IConfigurationBuilder configurationBuilder, AwsSystemsManagerOptions options)
+    {
+        configurationBuilder.AddSystemsManager(options.ParameterPath, new Amazon.Extensions.NETCore.Setup.AWSOptions
+        {
+            Credentials = new BasicAWSCredentials(options.AccessKeyID, options.SecretAccessKey),
+            Region = RegionEndpoint.GetBySystemName(options.RegionEndpoint)
+        });
 
         return configurationBuilder;
     }
