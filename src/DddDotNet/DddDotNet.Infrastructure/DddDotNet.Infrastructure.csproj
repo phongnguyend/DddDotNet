@@ -21,6 +21,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Amazon.Extensions.Configuration.SystemsManager" Version="5.1.0" />
     <PackageReference Include="Apache.NMS.ActiveMQ" Version="2.0.0" />
+    <PackageReference Include="AWSSDK.CognitoIdentityProvider" Version="3.7.201.12" />
     <PackageReference Include="AWSSDK.EventBridge" Version="3.7.5.55" />
     <PackageReference Include="AWSSDK.Extensions.CrtIntegration" Version="3.7.1.4" />
     <PackageReference Include="AWSSDK.Kinesis" Version="3.7.1.97" />

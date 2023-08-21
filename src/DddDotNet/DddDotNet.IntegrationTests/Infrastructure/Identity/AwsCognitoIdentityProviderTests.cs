@@ -7,32 +7,32 @@ using Xunit;
 
 namespace DddDotNet.IntegrationTests.Infrastructure.Identity;
 
-public class GoogleCloudIdentityProviderTests
+public class AwsCognitoIdentityProviderTests
 {
-    private readonly GoogleCloudIdentityOptions _options = new();
+    private readonly AwsCognitoIdentityOptions _options = new();
 
-    public GoogleCloudIdentityProviderTests()
+    public AwsCognitoIdentityProviderTests()
     {
         var config = new ConfigurationBuilder()
         .AddJsonFile("appsettings.json")
         .AddUserSecrets("09f024f8-e8d1-4b78-9ddd-da941692e8fa")
         .Build();
 
-        config.GetSection("Identity:GoogleCloudIdentity").Bind(_options);
+        config.GetSection("Identity:AwsCognitoIdentity").Bind(_options);
     }
 
     [Fact]
     public async Task CreateAsync_Success()
     {
-        var sut = new GoogleCloudIdentityProvider(_options);
+        var sut = new AwsCognitoIdentityProvider(_options);
 
         var users = await sut.GetUsersAsync();
 
         var newGuid = Guid.NewGuid().ToString().Replace("-", string.Empty);
         var user = new User
         {
-            Username = $"{newGuid}@gmail.com",
-            Password = Guid.NewGuid().ToString(),
+            Username = $"{newGuid}",
+            Password = Guid.NewGuid().ToString()+"Ab1!",
             FirstName = "FirstName",
             LastName = "LastName",
             Email = $"{newGuid}@gmail.com",
