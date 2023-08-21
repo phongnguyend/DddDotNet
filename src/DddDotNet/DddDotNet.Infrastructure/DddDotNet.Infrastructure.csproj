@@ -24,6 +24,7 @@
     <PackageReference Include="AWSSDK.Extensions.CrtIntegration" Version="3.7.1.4" />
     <PackageReference Include="AWSSDK.Kinesis" Version="3.7.1.97" />
     <PackageReference Include="AWSSDK.S3" Version="3.7.9.47" />
+    <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.201.6" />
     <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.0.200" />
     <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.4" />
     <PackageReference Include="AWSSDK.SQS" Version="3.7.2.97" />
