@@ -108,6 +108,8 @@ public class RabbitMQReceiver<T> : IMessageReceiver<T>, IDisposable
             catch (Exception ex)
             {
                 // TODO: log here
+                await Task.Delay(1000);
+                _channel.BasicNack(deliveryTag: ea.DeliveryTag, multiple: false, requeue: true);
             }
         };
 
