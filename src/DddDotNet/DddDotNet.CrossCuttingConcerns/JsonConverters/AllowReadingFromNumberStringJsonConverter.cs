@@ -10,11 +10,10 @@ namespace DddDotNet.CrossCuttingConcerns.JsonConverters
         {
             if (reader.TokenType == JsonTokenType.Number)
             {
-                reader.GetDecimal().ToString();
+                return reader.GetDecimal().ToString();
             }
 
             return reader.GetString();
-
         }
 
         public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options) => writer.WriteStringValue(value);
