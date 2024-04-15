@@ -92,9 +92,12 @@ public static class MessageBrokersCollectionExtensions
 
     public static IServiceCollection AddKafkaReceiver<T>(this IServiceCollection services, KafkaOptions options)
     {
-        services.AddTransient<IMessageReceiver<T>>(x => new KafkaReceiver<T>(options.BootstrapServers,
-            options.Topics[typeof(T).Name],
-            options.GroupId));
+        services.AddTransient<IMessageReceiver<T>>(x => new KafkaReceiver<T>(new KafkaReceiverOptions
+        {
+            BootstrapServers = options.BootstrapServers,
+            Topic = options.Topics[typeof(T).Name],
+            GroupId = options.GroupId
+        }));
         return services;
     }
 
