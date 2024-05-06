@@ -1,15 +1,20 @@
+- Resource Group
 ```bash
 az group create --name "DddDotNet" \
                 --location "southeastasia" \
                 --tags "Environment=Development" "Project=DddDotNet" "Department=SD" "ResourceType=Mixed"
+```
 
-# Storage
+- Storage
+```bash
 az storage account create --resource-group "DddDotNet" \
                           --name "ddddotnetintegrationtest" \
                           --location "southeastasia" \
                           --tags "Environment=Development" "Project=DddDotNet" "Department=SD"
+```
 
-# Service Bus
+- Service Bus
+```bash
 az servicebus namespace create --resource-group "DddDotNet" \
                                --name DddDotNetServiceBusIntegrationTest \
                                --location "southeastasia" \
@@ -30,8 +35,9 @@ az servicebus topic subscription create --resource-group "DddDotNet" \
                                         --namespace-name "DddDotNetServiceBusIntegrationTest" \
                                         --topic-name topic-integration-test \
                                         --name sub-integration-test
-
-# Event Hub
+```
+- Event Hub
+```bash
 az eventhubs namespace create --resource-group "DddDotNet" \
                               --name DddDotNetEventHubIntegrationTest \
                               --location "southeastasia" \
@@ -43,11 +49,44 @@ az eventhubs eventhub create --resource-group "DddDotNet" \
                              --name integration-test \
                              --message-retention 1 \
                              --partition-count 2
+```
 
-# Event Grid
+- Event Grid
+```bash
 az eventgrid domain create --resource-group "DddDotNet" \
                            --name DddDotNetEventGridIntegrationTest \
                            --location "southeastasia" \
                            --sku Basic \
                            --tags "Environment=Development" "Project=DddDotNet" "Department=SD"
+```
+
+- Azure Function:
+```bash
+
+az storage account create --resource-group "DddDotNet" \
+                          --name "functionappddddotnet" \
+                          --location "southeastasia" \
+                          --tags "Environment=Development" "Project=DddDotNet" "Department=SD"
+
+az extension add -n application-insights
+
+az monitor app-insights component create --resource-group "DddDotNet" \
+                                         --app "functionappddddotnet" \
+                                         --location "southeastasia" \
+                                         --tags "Environment=Development" "Project=DddDotNet" "Department=SD"
+						  
+az functionapp create --resource-group DddDotNet \
+                      --consumption-plan-location southeastasia \
+                      --name ddddotnet \
+                      --os-type Windows \
+                      --runtime dotnet-isolated \
+                      --storage-account functionappddddotnet \
+                      --app-insights "functionappddddotnet" \
+                      --tags "Environment=Development" "Project=DddDotNet" "Department=SD"
+
+az functionapp config set --resource-group DddDotNet \
+                          --name ddddotnet \
+                          --net-framework-version "v8.0"
+					  
+az functionapp show --name ddddotnet --resource-group DddDotNet
 ```
