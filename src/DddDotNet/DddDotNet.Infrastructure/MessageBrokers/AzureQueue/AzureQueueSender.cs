@@ -9,16 +9,22 @@ public class AzureQueueSender<T> : IMessageSender<T>
 {
     private readonly string _connectionString;
     private readonly string _queueName;
+    private readonly QueueMessageEncoding _messageEncoding;
 
-    public AzureQueueSender(string connectionString, string queueName)
+    public AzureQueueSender(string connectionString, string queueName, QueueMessageEncoding messageEncoding = QueueMessageEncoding.None)
     {
         _connectionString = connectionString;
         _queueName = queueName;
+        _messageEncoding = messageEncoding;
     }
 
     public async Task SendAsync(T message, MetaData metaData, CancellationToken cancellationToken = default)
     {
-        var queueClient = new QueueClient(_connectionString, _queueName);
+        var queueClient = new QueueClient(_connectionString, _queueName, new QueueClientOptions
+        {
+            MessageEncoding = _messageEncoding,
+        });
+
         await queueClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
 
         var jsonMessage = new Message<T>

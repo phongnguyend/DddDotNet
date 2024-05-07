@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "DddDotNet.AzureFunctions": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7210",
+      "launchBrowser": false
+    }
+  }
+}
