@@ -6,6 +6,7 @@ using DddDotNet.Infrastructure.MessageBrokers.AzureEventHub;
 using DddDotNet.Infrastructure.MessageBrokers.AzureQueue;
 using DddDotNet.Infrastructure.MessageBrokers.AzureServiceBus;
 using DddDotNet.Infrastructure.MessageBrokers.GooglePubSub;
+using DddDotNet.Infrastructure.MessageBrokers.Kafka;
 using DddDotNet.Infrastructure.MessageBrokers.RabbitMQ;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -148,6 +149,19 @@ class Program
         _ = rabbitMqReceiver.ReceiveAsync(async (message, metaData) =>
         {
             Console.WriteLine($"RabbitMQ: {message}");
+            await Task.CompletedTask;
+        });
+
+        var kafka = new KafkaReceiver<Message>(new KafkaReceiverOptions
+        {
+            BootstrapServers = "localhost:9092",
+            Topic = "ddddotnet",
+            GroupId = "integrationtest2",
+            AutoCommitEnabled = false,
+        });
+        _ = kafka.ReceiveAsync(async (message, metaData) =>
+        {
+            Console.WriteLine($"Kafka: {message}");
             await Task.CompletedTask;
         });
 
