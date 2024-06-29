@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace DddDotNet.CrossCuttingConcerns.ExtensionMethods
 {
@@ -18,6 +17,11 @@ namespace DddDotNet.CrossCuttingConcerns.ExtensionMethods
             list.AddRange(collection1);
             list.AddRange(collection2);
             return list;
+        }
+
+        public static bool IsNullOrEmpty<T>(this IReadOnlyCollection<T> items)
+        {
+            return items == null || !items.Any();
         }
     }
 }
