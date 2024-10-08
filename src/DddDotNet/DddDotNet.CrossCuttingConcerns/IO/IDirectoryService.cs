@@ -2,24 +2,23 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace DddDotNet.CrossCuttingConcerns.IO
+namespace DddDotNet.CrossCuttingConcerns.IO;
+
+public interface IDirectoryService
 {
-    public interface IDirectoryService
-    {
-        DirectoryInfo CreateDirectory(string path);
+    DirectoryInfo CreateDirectory(string path);
 
-        void Delete(string path, bool recursive);
+    void Delete(string path, bool recursive);
 
-        IEnumerable<DirectoryInfo> EnumerateDirectories(string path);
+    IEnumerable<DirectoryInfo> EnumerateDirectories(string path);
 
-        bool Exists(string path);
+    bool Exists(string path);
 
-        string[] GetDirectories(string path);
+    string[] GetDirectories(string path);
 
-        string[] GetFiles(string path);
+    string[] GetFiles(string path);
 
-        string GetTempFolder(string root);
+    string GetTempFolder(string root);
 
-        DateTime GetCreationTime(string path);
-    }
+    DateTime GetCreationTime(string path);
 }

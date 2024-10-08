@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace DddDotNet.CrossCuttingConcerns.Csv
+namespace DddDotNet.CrossCuttingConcerns.Csv;
+
+public interface ICsvWriter<T>
 {
-    public interface ICsvWriter<T>
-    {
-        void Write(IEnumerable<T> collection, Stream stream);
-    }
+    void Write(IEnumerable<T> collection, Stream stream);
 }

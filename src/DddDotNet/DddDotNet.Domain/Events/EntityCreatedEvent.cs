@@ -1,19 +1,18 @@
 ﻿using DddDotNet.Domain.Entities;
 using System;
 
-namespace DddDotNet.Domain.Events
+namespace DddDotNet.Domain.Events;
+
+public class EntityCreatedEvent<T> : IDomainEvent
+    where T : Entity<Guid>
 {
-    public class EntityCreatedEvent<T> : IDomainEvent
-        where T : Entity<Guid>
+    public EntityCreatedEvent(T entity, DateTime eventDateTime)
     {
-        public EntityCreatedEvent(T entity, DateTime eventDateTime)
-        {
-            Entity = entity;
-            EventDateTime = eventDateTime;
-        }
-
-        public T Entity { get; }
-
-        public DateTime EventDateTime { get; }
+        Entity = entity;
+        EventDateTime = eventDateTime;
     }
+
+    public T Entity { get; }
+
+    public DateTime EventDateTime { get; }
 }

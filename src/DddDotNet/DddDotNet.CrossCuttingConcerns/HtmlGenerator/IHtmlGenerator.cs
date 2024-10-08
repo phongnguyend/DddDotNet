@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace DddDotNet.CrossCuttingConcerns.HtmlGenerator
+namespace DddDotNet.CrossCuttingConcerns.HtmlGenerator;
+
+public interface IHtmlGenerator
 {
-    public interface IHtmlGenerator
-    {
-        Task<string> GenerateAsync(string template, object model);
-    }
+    Task<string> GenerateAsync(string template, object model);
 }

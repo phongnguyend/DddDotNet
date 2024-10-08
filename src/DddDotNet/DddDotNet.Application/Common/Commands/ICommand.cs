@@ -1,6 +1,5 @@
-﻿namespace DddDotNet.Application
+﻿namespace DddDotNet.Application;
+
+public interface ICommand
 {
-    public interface ICommand
-    {
-    }
 }

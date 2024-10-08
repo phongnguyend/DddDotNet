@@ -1,7 +1,6 @@
-﻿namespace DddDotNet.CrossCuttingConcerns.Security
+﻿namespace DddDotNet.CrossCuttingConcerns.Security;
+
+public interface IHtmlSanitizer
 {
-    public interface IHtmlSanitizer
-    {
-        string Sanitize(string html);
-    }
+    string Sanitize(string html);
 }

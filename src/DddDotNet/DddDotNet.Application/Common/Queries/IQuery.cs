@@ -1,6 +1,5 @@
-﻿namespace DddDotNet.Application
+﻿namespace DddDotNet.Application;
+
+public interface IQuery<TResult>
 {
-    public interface IQuery<TResult>
-    {
-    }
 }

@@ -2,38 +2,32 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DddDotNet.CrossCuttingConcerns.ExtensionMethods
+namespace DddDotNet.CrossCuttingConcerns.ExtensionMethods;
+
+public static class IEnumerableExtensions
 {
-    public static class IEnumerableExtensions
+    public static IEnumerable<T> Paged<T>(this IEnumerable<T> source, int page, int pageSize)
     {
-        public static IEnumerable<T> Paged<T>(this IEnumerable<T> source, int page, int pageSize)
+        return source.Skip((page - 1) * pageSize).Take(pageSize);
+    }
+
+    public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> source, int pageSize)
+    {
+        return source.Chunk(pageSize);
+    }
+
+    public static IEnumerable<T> WhereIf<T>(this IEnumerable<T> query, bool condition, Func<T, bool> predicate)
+    {
+        return condition ? query.Where(predicate) : query;
+    }
+
+    public static IEnumerable<TSource> OrderByIf<TSource, TKey>(this IEnumerable<TSource> query, bool condition, Func<TSource, TKey> keySelector, bool ascending = true)
+    {
+        if (condition)
         {
-            return source.Skip((page - 1) * pageSize).Take(pageSize);
+            return ascending ? query.OrderBy(keySelector) : query.OrderByDescending(keySelector);
         }
 
-        public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> source, int pageSize)
-        {
-            var numberOfRows = source.Count();
-            var numberOfPages = (int)Math.Ceiling(numberOfRows * 1.0 / pageSize);
-            for (var i = 1; i <= numberOfPages; i++)
-            {
-                yield return source.Paged(i, pageSize);
-            }
-        }
-
-        public static IEnumerable<T> WhereIf<T>(this IEnumerable<T> query, bool condition, Func<T, bool> predicate)
-        {
-            return condition ? query.Where(predicate) : query;
-        }
-
-        public static IEnumerable<TSource> OrderByIf<TSource, TKey>(this IEnumerable<TSource> query, bool condition, Func<TSource, TKey> keySelector, bool ascending = true)
-        {
-            if (condition)
-            {
-                return ascending ? query.OrderBy(keySelector) : query.OrderByDescending(keySelector);
-            }
-
-            return query;
-        }
+        return query;
     }
 }

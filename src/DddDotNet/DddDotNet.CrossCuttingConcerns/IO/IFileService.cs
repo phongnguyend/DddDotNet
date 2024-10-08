@@ -2,52 +2,51 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace DddDotNet.CrossCuttingConcerns.IO
+namespace DddDotNet.CrossCuttingConcerns.IO;
+
+public interface IFileService
 {
-    public interface IFileService
-    {
-        void Copy(string sourceFileName, string destFileName);
+    void Copy(string sourceFileName, string destFileName);
 
-        void Copy(string sourceFileName, string destFileName, bool overwrite);
+    void Copy(string sourceFileName, string destFileName, bool overwrite);
 
-        void CopyMultipleFiles(List<(string SourceFileName, string DestFileName)> copies, bool overwrite);
+    void CopyMultipleFiles(List<(string SourceFileName, string DestFileName)> copies, bool overwrite);
 
-        FileStream Create(string path);
+    FileStream Create(string path);
 
-        FileStream CreateTempFileStream();
+    FileStream CreateTempFileStream();
 
-        FileStream CreateTempFileStream(string path);
+    FileStream CreateTempFileStream(string path);
 
-        StreamWriter CreateText(string path);
+    StreamWriter CreateText(string path);
 
-        void Delete(string path);
+    void Delete(string path);
 
-        void DeleteIfExist(string path);
+    void DeleteIfExist(string path);
 
-        bool Exists(string path);
+    bool Exists(string path);
 
-        FileAttributes GetAttributes(string path);
+    FileAttributes GetAttributes(string path);
 
-        StreamWriter GetStreamWriter(string path);
+    StreamWriter GetStreamWriter(string path);
 
-        FileStream Open(string path, FileMode mode, FileAccess access, FileShare share);
+    FileStream Open(string path, FileMode mode, FileAccess access, FileShare share);
 
-        FileStream OpenRead(string path);
+    FileStream OpenRead(string path);
 
-        FileStream OpenWrite(string path);
+    FileStream OpenWrite(string path);
 
-        byte[] ReadAllBytes(string path);
+    byte[] ReadAllBytes(string path);
 
-        void SetAttributes(string path, FileAttributes fileAttributes);
+    void SetAttributes(string path, FileAttributes fileAttributes);
 
-        void WriteAllText(string path, string data);
+    void WriteAllText(string path, string data);
 
-        StreamReader GetStreamReader(string path);
+    StreamReader GetStreamReader(string path);
 
-        void WriteAllBytes(string path, byte[] byteArray);
+    void WriteAllBytes(string path, byte[] byteArray);
 
-        string ReadAllText(string path);
+    string ReadAllText(string path);
 
-        DateTime GetCreationTime(string path);
-    }
+    DateTime GetCreationTime(string path);
 }

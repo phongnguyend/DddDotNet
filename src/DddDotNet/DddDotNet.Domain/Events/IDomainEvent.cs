@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DddDotNet.Domain.Events
+namespace DddDotNet.Domain.Events;
+
+public interface IDomainEvent
 {
-    public interface IDomainEvent
-    {
-    }
 }

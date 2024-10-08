@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace DddDotNet.CrossCuttingConcerns.Csv
+namespace DddDotNet.CrossCuttingConcerns.Csv;
+
+public interface ICsvReader<T>
 {
-    public interface ICsvReader<T>
-    {
-        IEnumerable<T> Read(Stream stream);
-    }
+    IEnumerable<T> Read(Stream stream);
 }

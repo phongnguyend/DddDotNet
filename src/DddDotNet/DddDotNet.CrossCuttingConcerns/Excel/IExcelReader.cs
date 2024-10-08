@@ -1,9 +1,8 @@
 ﻿using System.IO;
 
-namespace DddDotNet.CrossCuttingConcerns.Excel
+namespace DddDotNet.CrossCuttingConcerns.Excel;
+
+public interface IExcelReader<T>
 {
-    public interface IExcelReader<T>
-    {
-        T Read(Stream stream);
-    }
+    T Read(Stream stream);
 }

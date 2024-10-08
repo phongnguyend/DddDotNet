@@ -1,7 +1,6 @@
-﻿namespace DddDotNet.Domain.Entities
+﻿namespace DddDotNet.Domain.Entities;
+
+public interface IHasKey<T>
 {
-    public interface IHasKey<T>
-    {
-        T Id { get; set; }
-    }
+    T Id { get; set; }
 }

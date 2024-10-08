@@ -1,15 +1,14 @@
 ﻿using System;
 
-namespace DddDotNet.CrossCuttingConcerns.DateTimes
+namespace DddDotNet.CrossCuttingConcerns.DateTimes;
+
+public interface IDateTimeProvider
 {
-    public interface IDateTimeProvider
-    {
-        DateTime Now { get; }
+    DateTime Now { get; }
 
-        DateTime UtcNow { get; }
+    DateTime UtcNow { get; }
 
-        DateTimeOffset OffsetNow { get; }
+    DateTimeOffset OffsetNow { get; }
 
-        DateTimeOffset OffsetUtcNow { get; }
-    }
+    DateTimeOffset OffsetUtcNow { get; }
 }

@@ -1,12 +1,11 @@
 ﻿using System.IO;
 
-namespace DddDotNet.CrossCuttingConcerns.ExtensionMethods
+namespace DddDotNet.CrossCuttingConcerns.ExtensionMethods;
+
+public static class StreamExtensions
 {
-    public static class StreamExtensions
+    public static void ResetPosition(this Stream stream)
     {
-        public static void ResetPosition(this Stream stream)
-        {
-            stream.Seek(0, SeekOrigin.Begin);
-        }
+        stream.Seek(0, SeekOrigin.Begin);
     }
 }

@@ -1,27 +1,26 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace DddDotNet.CrossCuttingConcerns.ExtensionMethods
+namespace DddDotNet.CrossCuttingConcerns.ExtensionMethods;
+
+public static class ListExtensions
 {
-    public static class ListExtensions
+    public static List<T> Combines<T>(this List<T> collection1, List<T> collection2)
     {
-        public static List<T> Combines<T>(this List<T> collection1, List<T> collection2)
-        {
-            collection1.AddRange(collection2);
-            return collection1;
-        }
+        collection1.AddRange(collection2);
+        return collection1;
+    }
 
-        public static ICollection<T> Combines<T>(this ICollection<T> collection1, ICollection<T> collection2)
-        {
-            var list = new List<T>();
-            list.AddRange(collection1);
-            list.AddRange(collection2);
-            return list;
-        }
+    public static ICollection<T> Combines<T>(this ICollection<T> collection1, ICollection<T> collection2)
+    {
+        var list = new List<T>();
+        list.AddRange(collection1);
+        list.AddRange(collection2);
+        return list;
+    }
 
-        public static bool IsNullOrEmpty<T>(this IReadOnlyCollection<T> items)
-        {
-            return items == null || !items.Any();
-        }
+    public static bool IsNullOrEmpty<T>(this IReadOnlyCollection<T> items)
+    {
+        return items == null || !items.Any();
     }
 }

@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace DddDotNet.Application.Common.DTOs
+namespace DddDotNet.Application.Common.DTOs;
+
+public class QueueItem
 {
-    public class QueueItem
-    {
-        public Guid Id { get; set; }
-    }
+    public Guid Id { get; set; }
 }

@@ -1,6 +1,5 @@
-﻿namespace DddDotNet.Domain.Entities
+﻿namespace DddDotNet.Domain.Entities;
+
+public interface IAggregateRoot
 {
-    public interface IAggregateRoot
-    {
-    }
 }

@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace DddDotNet.CrossCuttingConcerns.Locks
+namespace DddDotNet.CrossCuttingConcerns.Locks;
+
+public interface IDistributedLockScope : IDisposable
 {
-    public interface IDistributedLockScope : IDisposable
-    {
-        bool StillHoldingLock();
-    }
+    bool StillHoldingLock();
 }
