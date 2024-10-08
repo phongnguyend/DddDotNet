@@ -1,11 +1,12 @@
-﻿using DddDotNet.CrossCuttingConcerns.HtmlGenerator;
+﻿using DddDotNet.CrossCuttingConcerns.Html;
+using DddDotNet.Domain.Entities;
 using DddDotNet.Infrastructure.HtmlGenerators;
 using RazorLight;
 using System;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-public static class HtmlGeneratorCollectionExtensions
+public static class HtmlWriterCollectionExtensions
 {
     public static IServiceCollection AddHtmlGenerator(this IServiceCollection services)
     {
@@ -15,7 +16,7 @@ public static class HtmlGeneratorCollectionExtensions
                .Build();
 
         services.AddSingleton<IRazorLightEngine>(engine);
-        services.AddSingleton<IHtmlGenerator, HtmlGenerator>();
+        services.AddSingleton<IHtmlWriter<ConfigurationEntry>, ConfigurationEntryHtmlWriter>();
 
         return services;
     }

@@ -1,4 +1,5 @@
-﻿using DddDotNet.CrossCuttingConcerns.PdfConverter;
+﻿using DddDotNet.CrossCuttingConcerns.Pdf;
+using DddDotNet.Domain.Entities;
 using DinkToPdf;
 using DinkToPdf.Contracts;
 using System.IO;
@@ -6,17 +7,19 @@ using System.Threading.Tasks;
 
 namespace DddDotNet.Infrastructure.PdfConverters.DinkToPdf;
 
-public class DinkToPdfConverter : IPdfConverter
+public class ConfigurationEntryPdfWriter : IPdfWriter<ConfigurationEntry>
 {
     private readonly IConverter _converter;
 
-    public DinkToPdfConverter(IConverter converter)
+    public ConfigurationEntryPdfWriter(IConverter converter)
     {
         _converter = converter;
     }
 
-    public Stream Convert(string html, PdfOptions pdfOptions = null)
+    public Task WriteAsync(ConfigurationEntry data, Stream stream)
     {
+        var html = "";
+
         var doc = new HtmlToPdfDocument()
         {
             GlobalSettings =
@@ -40,11 +43,6 @@ public class DinkToPdfConverter : IPdfConverter
 
         byte[] pdf = _converter.Convert(doc);
 
-        return new MemoryStream(pdf);
-    }
-
-    public Task<Stream> ConvertAsync(string html, PdfOptions pdfOptions = null)
-    {
-        return Task.FromResult(Convert(html, pdfOptions));
+        return Task.CompletedTask;
     }
 }
