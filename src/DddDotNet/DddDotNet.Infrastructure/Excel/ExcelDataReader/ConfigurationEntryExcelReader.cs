@@ -3,12 +3,22 @@ using DddDotNet.Domain.Entities;
 using ExcelDataReader;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace DddDotNet.Infrastructure.Excel.ExcelDataReader;
 
 public class ConfigurationEntryExcelReader : IExcelReader<List<ConfigurationEntry>>
 {
-    public List<ConfigurationEntry> Read(Stream stream)
+    private static Dictionary<string, string> GetCorrectHeaders()
+    {
+        return new Dictionary<string, string>
+        {
+            { "A", "Key" },
+            { "B", "Value" },
+        };
+    }
+
+    public Task<List<ConfigurationEntry>> ReadAsync(Stream stream)
     {
         var rows = new List<ConfigurationEntry>();
         var reader = ExcelReaderFactory.CreateReader(stream);
@@ -56,15 +66,6 @@ public class ConfigurationEntryExcelReader : IExcelReader<List<ConfigurationEntr
         }
         while (reader.NextResult());
 
-        return rows;
-    }
-
-    private static Dictionary<string, string> GetCorrectHeaders()
-    {
-        return new Dictionary<string, string>
-        {
-            { "A", "Key" },
-            { "B", "Value" },
-        };
+        return Task.FromResult(rows);
     }
 }
