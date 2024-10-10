@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
+﻿namespace DddDotNet.Domain.ValueObjects;
 
-namespace DddDotNet.Domain.ValueObjects;
-
-public class Address : ValueObject
+public record Address
 {
     public string Street { get; private set; }
     public string City { get; private set; }
@@ -17,12 +15,5 @@ public class Address : ValueObject
         Street = street;
         City = city;
         ZipCode = zipCode;
-    }
-
-    protected override IEnumerable<object> GetEqualityComponents()
-    {
-        yield return Street;
-        yield return City;
-        yield return ZipCode;
     }
 }
