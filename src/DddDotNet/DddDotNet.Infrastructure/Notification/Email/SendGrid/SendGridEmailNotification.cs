@@ -19,7 +19,7 @@ public class SendGridEmailNotification : IEmailNotification
 
     public async Task SendAsync(IEmailMessage emailMessage, CancellationToken cancellationToken = default)
     {
-        var client = new SendGridClient(_options.ApiKey);
+        var client = new SendGridClient(_options.ApiKey, _options.Host);
         var from = new EmailAddress(!string.IsNullOrWhiteSpace(_options.OverrideFrom) ? _options.OverrideFrom : emailMessage.From);
 
         var tos = (!string.IsNullOrWhiteSpace(_options.OverrideTos) ? _options.OverrideTos : emailMessage.Tos)?.Split(';')

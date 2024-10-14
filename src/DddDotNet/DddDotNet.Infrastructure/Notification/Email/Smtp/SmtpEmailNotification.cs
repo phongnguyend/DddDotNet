@@ -42,7 +42,7 @@ public class SmtpEmailNotification : IEmailNotification
 
         mail.IsBodyHtml = true;
 
-        var smtpClient = new System.Net.Mail.SmtpClient(_options.Host);
+        var smtpClient = new SmtpClient(_options.Host);
 
         if (_options.Port.HasValue)
         {

@@ -2,6 +2,8 @@
 
 public class SendGridOptions
 {
+    public string Host { get; set; }
+
     public string ApiKey { get; set; }
 
     public string OverrideFrom { get; set; }
