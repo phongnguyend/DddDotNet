@@ -20,14 +20,37 @@ public class SendGridEmailNotification : IEmailNotification
     public async Task SendAsync(IEmailMessage emailMessage, CancellationToken cancellationToken = default)
     {
         var client = new SendGridClient(_options.ApiKey, _options.Host);
-        var from = new EmailAddress(!string.IsNullOrWhiteSpace(_options.OverrideFrom) ? _options.OverrideFrom : emailMessage.From);
 
-        var tos = (!string.IsNullOrWhiteSpace(_options.OverrideTos) ? _options.OverrideTos : emailMessage.Tos)?.Split(';')
-            .Where(x => !string.IsNullOrWhiteSpace(x))
-            .Select(x => new EmailAddress(x))
-            .ToList();
+        var msg = new SendGridMessage
+        {
+            From = new EmailAddress(!string.IsNullOrWhiteSpace(_options.OverrideFrom) ? _options.OverrideFrom : emailMessage.From, emailMessage.FromName),
+            Subject = emailMessage.Subject,
+            HtmlContent = emailMessage.Body
+        };
 
-        var msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, tos, emailMessage.Subject, string.Empty, emailMessage.Body, showAllRecipients: true);
+        foreach (var to in emailMessage.Tos.Split(";"))
+        {
+            if (!string.IsNullOrWhiteSpace(to))
+            {
+                msg.AddTo(to.Trim());
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(emailMessage.CCs))
+        {
+            foreach (var cc in emailMessage.CCs.Split(";").Where(cc => !string.IsNullOrWhiteSpace(cc)))
+            {
+                msg.AddCc(cc.Trim());
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(emailMessage.BCCs))
+        {
+            foreach (var bcc in emailMessage.BCCs.Split(";").Where(bcc => !string.IsNullOrWhiteSpace(bcc)))
+            {
+                msg.AddBcc(bcc.Trim());
+            }
+        }
 
         var response = await client.SendEmailAsync(msg, cancellationToken);
 
