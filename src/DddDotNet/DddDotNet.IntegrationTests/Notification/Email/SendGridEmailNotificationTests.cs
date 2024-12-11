@@ -62,7 +62,15 @@ public class SendGridEmailNotificationTests
     [Fact]
     public async Task HealthCheck_Healthy()
     {
-        var healthCheck = new SendGridHealthCheck(_options, "Health Check", "Health Check");
+        var healthCheck = new SendGridHealthCheck(new SendGridHealthCheckOptions
+        {
+            ApiKey = _options.ApiKey,
+            Host = _options.Host,
+            From = "phong@gmail.com",
+            Tos = "phong@gmail.com",
+            Subject = "Health Check",
+            Body = "Health Check"
+        });
         var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
         Assert.Equal(HealthStatus.Healthy, checkResult.Status);
     }
@@ -70,8 +78,15 @@ public class SendGridEmailNotificationTests
     [Fact]
     public async Task HealthCheck_Degraded()
     {
-        _options.ApiKey = Guid.NewGuid().ToString();
-        var healthCheck = new SendGridHealthCheck(_options, "Health Check", "Health Check");
+        var healthCheck = new SendGridHealthCheck(new SendGridHealthCheckOptions
+        {
+            ApiKey = Guid.NewGuid().ToString(),
+            Host = _options.Host,
+            From = "phong@gmail.com",
+            Tos = "phong@gmail.com",
+            Subject = "Health Check",
+            Body = "Health Check"
+        });
         var checkResult = await healthCheck.CheckHealthAsync(new HealthCheckContext { Registration = new HealthCheckRegistration("Test", (x) => null, HealthStatus.Degraded, new string[] { }) });
         Assert.Equal(HealthStatus.Degraded, checkResult.Status);
     }
