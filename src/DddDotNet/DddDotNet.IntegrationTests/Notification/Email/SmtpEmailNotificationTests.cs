@@ -1,6 +1,9 @@
-﻿using DddDotNet.Infrastructure.Notification.Email.Smtp;
+﻿using DddDotNet.Infrastructure.Notification.Email;
+using DddDotNet.Infrastructure.Notification.Email.Smtp;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -26,6 +29,7 @@ public class SmtpEmailNotificationTests
             Tos = "phong@gmail.com",
             Subject = "IntegrationTests 1",
             Body = "IntegrationTests 1",
+            Attachments = [new Attachment { FileName = "test.txt", Content = new MemoryStream(Encoding.UTF8.GetBytes("This is a text file.")) }]
         });
 
         await smtpClient.SendAsync(new EmailMessage

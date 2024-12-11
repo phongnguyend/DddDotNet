@@ -1,4 +1,5 @@
-﻿using SendGrid;
+﻿using DddDotNet.CrossCuttingConcerns.ExtensionMethods;
+using SendGrid;
 using SendGrid.Helpers.Mail;
 using System;
 using System.Linq;
@@ -49,6 +50,14 @@ public class SendGridEmailNotification : IEmailNotification
             foreach (var bcc in emailMessage.BCCs.Split(";").Where(bcc => !string.IsNullOrWhiteSpace(bcc)))
             {
                 msg.AddBcc(bcc.Trim());
+            }
+        }
+
+        if (emailMessage.Attachments != null)
+        {
+            foreach (var attachment in emailMessage.Attachments)
+            {
+                msg.AddAttachment(attachment.FileName, Convert.ToBase64String(attachment.Content.GetBytes()));
             }
         }
 

@@ -8,4 +8,11 @@ public static class StreamExtensions
     {
         stream.Seek(0, SeekOrigin.Begin);
     }
+
+    public static byte[] GetBytes(this Stream stream)
+    {
+        using var memoryStream = new MemoryStream();
+        stream.CopyTo(memoryStream);
+        return memoryStream.ToArray();
+    }
 }

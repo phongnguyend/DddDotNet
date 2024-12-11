@@ -42,6 +42,14 @@ public class SmtpEmailNotification : IEmailNotification
 
         mail.IsBodyHtml = true;
 
+        if (emailMessage.Attachments != null)
+        {
+            foreach (var attachment in emailMessage.Attachments)
+            {
+                mail.Attachments.Add(new System.Net.Mail.Attachment(attachment.Content, attachment.FileName));
+            }
+        }
+
         var smtpClient = new SmtpClient(_options.Host);
 
         if (_options.Port.HasValue)

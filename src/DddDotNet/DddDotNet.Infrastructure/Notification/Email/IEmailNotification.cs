@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DddDotNet.Infrastructure.Notification.Email;
@@ -23,4 +25,13 @@ public interface IEmailMessage
     public string Subject { get; set; }
 
     public string Body { get; set; }
+
+    public List<Attachment> Attachments { get; set; }
+}
+
+public class Attachment
+{
+    public string FileName { get; set; }
+
+    public Stream Content { get; set; }
 }
