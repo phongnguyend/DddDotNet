@@ -65,7 +65,7 @@ public class SendGridEmailNotification : IEmailNotification
 
         if (response.StatusCode != HttpStatusCode.Accepted)
         {
-            throw new Exception(response.StatusCode.ToString());
+            throw new SendGridException(response.StatusCode, await response.Body.ReadAsStringAsync());
         }
     }
 }

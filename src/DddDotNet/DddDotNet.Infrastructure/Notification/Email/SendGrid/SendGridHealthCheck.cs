@@ -88,12 +88,8 @@ public class SendGridHealthCheck : IHealthCheck
     }
 }
 
-public class SendGridHealthCheckOptions
+public class SendGridHealthCheckOptions : SendGridOptions
 {
-    public string Host { get; set; }
-
-    public string ApiKey { get; set; }
-
     public string Subject { get; set; }
 
     public string Body { get; set; }
