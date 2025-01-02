@@ -1,4 +1,5 @@
-﻿using DddDotNet.Infrastructure.Notification.Email.Amazon;
+﻿using DddDotNet.Infrastructure.Notification.Email;
+using DddDotNet.Infrastructure.Notification.Email.Amazon;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Threading.Tasks;

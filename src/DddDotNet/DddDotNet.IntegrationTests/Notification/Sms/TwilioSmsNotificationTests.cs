@@ -1,4 +1,5 @@
-﻿using DddDotNet.Infrastructure.Notification.Sms.Twilio;
+﻿using DddDotNet.Infrastructure.Notification.Sms;
+using DddDotNet.Infrastructure.Notification.Sms.Twilio;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Threading.Tasks;

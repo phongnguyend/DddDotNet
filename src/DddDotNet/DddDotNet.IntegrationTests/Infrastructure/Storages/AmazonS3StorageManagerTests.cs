@@ -88,10 +88,3 @@ public class AmazonS3StorageManagerTests
         Assert.Equal(HealthStatus.Degraded, checkResult.Status);
     }
 }
-
-public class FileEntry : IFileEntry
-{
-    public Guid Id { get; set; }
-    public string FileName { get; set; }
-    public string FileLocation { get; set; }
-}

@@ -1,4 +1,5 @@
-﻿using DddDotNet.Infrastructure.Storages.WindowsNetworkShare;
+﻿using DddDotNet.Infrastructure.Storages;
+using DddDotNet.Infrastructure.Storages.WindowsNetworkShare;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;

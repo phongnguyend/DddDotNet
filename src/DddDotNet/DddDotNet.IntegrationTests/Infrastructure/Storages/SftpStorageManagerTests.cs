@@ -1,4 +1,5 @@
-﻿using DddDotNet.Infrastructure.Storages.Sftp;
+﻿using DddDotNet.Infrastructure.Storages;
+using DddDotNet.Infrastructure.Storages.Sftp;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;

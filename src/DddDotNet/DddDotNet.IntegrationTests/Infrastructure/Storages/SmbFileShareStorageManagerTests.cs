@@ -1,4 +1,5 @@
-﻿using DddDotNet.Infrastructure.Storages.Smb;
+﻿using DddDotNet.Infrastructure.Storages;
+using DddDotNet.Infrastructure.Storages.Smb;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;

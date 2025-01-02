@@ -30,3 +30,12 @@ public interface IFileEntry
 
     public string FileLocation { get; set; }
 }
+
+public class FileEntry : IFileEntry
+{
+    public Guid Id { get; set; }
+
+    public string FileName { get; set; }
+
+    public string FileLocation { get; set; }
+}

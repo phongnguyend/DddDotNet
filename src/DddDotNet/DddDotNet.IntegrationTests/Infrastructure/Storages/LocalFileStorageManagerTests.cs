@@ -1,4 +1,5 @@
-﻿using DddDotNet.Infrastructure.Storages.Local;
+﻿using DddDotNet.Infrastructure.Storages;
+using DddDotNet.Infrastructure.Storages.Local;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
