@@ -2,6 +2,7 @@
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -29,27 +30,29 @@ public class SendGridEmailNotification : IEmailNotification
             HtmlContent = emailMessage.Body
         };
 
-        foreach (var to in emailMessage.Tos.Split(";"))
+        var uniqueEmails = new HashSet<string>();
+
+        foreach (var to in emailMessage.Tos.ToLowerInvariant().Split(";").Select(x => x.Trim()))
         {
-            if (!string.IsNullOrWhiteSpace(to))
+            if (!string.IsNullOrWhiteSpace(to) && uniqueEmails.Add(to))
             {
-                msg.AddTo(to.Trim());
+                msg.AddTo(to);
             }
         }
 
         if (!string.IsNullOrWhiteSpace(emailMessage.CCs))
         {
-            foreach (var cc in emailMessage.CCs.Split(";").Where(cc => !string.IsNullOrWhiteSpace(cc)))
+            foreach (var cc in emailMessage.CCs.ToLowerInvariant().Split(";").Select(x => x.Trim()).Where(cc => !string.IsNullOrWhiteSpace(cc) && uniqueEmails.Add(cc)))
             {
-                msg.AddCc(cc.Trim());
+                msg.AddCc(cc);
             }
         }
 
         if (!string.IsNullOrWhiteSpace(emailMessage.BCCs))
         {
-            foreach (var bcc in emailMessage.BCCs.Split(";").Where(bcc => !string.IsNullOrWhiteSpace(bcc)))
+            foreach (var bcc in emailMessage.BCCs.ToLowerInvariant().Split(";").Select(x => x.Trim()).Where(bcc => !string.IsNullOrWhiteSpace(bcc) && uniqueEmails.Add(bcc)))
             {
-                msg.AddBcc(bcc.Trim());
+                msg.AddBcc(bcc);
             }
         }
 
